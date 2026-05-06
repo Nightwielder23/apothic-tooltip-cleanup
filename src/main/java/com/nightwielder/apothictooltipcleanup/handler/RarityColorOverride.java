@@ -1,7 +1,7 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,8 +18,18 @@ public final class RarityColorOverride {
         } catch (NumberFormatException ignored) {
             return;
         }
-        Component name = tooltip.get(0);
-        Style restyled = name.getStyle().withColor(TextColor.fromRgb(rgb));
-        tooltip.set(0, name.copy().setStyle(restyled));
+        tooltip.set(0, recolor(tooltip.get(0), TextColor.fromRgb(rgb)));
+    }
+
+    // The affixed name renders through misc.apotheosis.affix_name.three with colored siblings, so a
+    // top-level setStyle is masked by their own colors. Walk siblings and force the color through.
+    private static MutableComponent recolor(Component source, TextColor color) {
+        MutableComponent result = source.copy();
+        result.setStyle(result.getStyle().withColor(color));
+        List<Component> siblings = result.getSiblings();
+        for (int i = 0; i < siblings.size(); i++) {
+            siblings.set(i, recolor(siblings.get(i), color));
+        }
+        return result;
     }
 }

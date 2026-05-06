@@ -77,6 +77,10 @@ public class TooltipHandler {
                 RarityColorOverride.apply(stack, tooltip, hex);
             }
         }
+
+        if (Config.HIDE_APOTH_MARKER.get()) {
+            MarkerCleaner.apply(tooltip);
+        }
     }
 
     private static String resolveRarityHex(ItemStack stack) {
@@ -84,17 +88,19 @@ public class TooltipHandler {
         if (tag == null || !tag.contains("affix_data")) return null;
         String rarity = tag.getCompound("affix_data").getString("rarity");
         if (rarity == null || rarity.isEmpty()) return null;
-        if (rarity.startsWith("apotheosis:")) {
-            rarity = rarity.substring("apotheosis:".length());
+        // Strip whatever namespace produced the rarity (apotheosis:, apotheotic_additions:, etc).
+        int colon = rarity.indexOf(':');
+        if (colon >= 0) {
+            rarity = rarity.substring(colon + 1);
         }
+        // Unknown rarities (e.g. apotheotic_additions:esoteric) fall through to ancient as the highest tier.
         return switch (rarity) {
             case "common" -> Config.COMMON.get();
             case "uncommon" -> Config.UNCOMMON.get();
             case "rare" -> Config.RARE.get();
             case "epic" -> Config.EPIC.get();
             case "mythic" -> Config.MYTHIC.get();
-            case "ancient" -> Config.ANCIENT.get();
-            default -> null;
+            default -> Config.ANCIENT.get();
         };
     }
 }

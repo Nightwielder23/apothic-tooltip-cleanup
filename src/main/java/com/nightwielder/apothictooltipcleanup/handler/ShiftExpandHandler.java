@@ -9,15 +9,15 @@ import java.util.Iterator;
 import java.util.List;
 
 public final class ShiftExpandHandler {
-    private static final String AFFIX_KEY_PREFIX = "affix.apotheosis:";
-    private static final String DURABLE_KEY = "affix.apotheosis:durable.desc";
+    private static final String DOT_PREFIX_KEY = "text.apotheosis.dot_prefix";
     private static final int VISIBLE_AFFIX_LIMIT = 3;
 
     private ShiftExpandHandler() {}
 
-    // Config name SHIFT_TO_EXPAND is historical: shift-click in inventory triggers vanilla quick-move, so we gate on Ctrl.
+    // Config key kept as shift_to_expand for backwards compatibility. Shift triggers vanilla quick-move
+    // and EpicFight's innate skill display, and Ctrl conflicts with other tooltip mods, so we gate on Alt.
     public static void apply(List<Component> tooltip) {
-        if (Screen.hasControlDown()) return;
+        if (Screen.hasAltDown()) return;
 
         int affixesKept = 0;
         int liveIndex = 0;
@@ -26,12 +26,12 @@ public final class ShiftExpandHandler {
         Iterator<Component> it = tooltip.iterator();
         while (it.hasNext()) {
             Component line = it.next();
-            if (TooltipMatcher.keyEqualsRecursive(line, DURABLE_KEY)) {
+            if (DurabilityHider.isDurableLine(line)) {
                 it.remove();
                 removed = true;
                 continue;
             }
-            if (TooltipMatcher.keyStartsWithRecursive(line, AFFIX_KEY_PREFIX)) {
+            if (TooltipMatcher.keyStartsWith(line, DOT_PREFIX_KEY)) {
                 if (affixesKept < VISIBLE_AFFIX_LIMIT) {
                     affixesKept++;
                     liveIndex++;
@@ -47,7 +47,7 @@ public final class ShiftExpandHandler {
 
         if (!removed) return;
 
-        Component prompt = Component.literal("Hold Ctrl for full details").withStyle(ChatFormatting.DARK_GRAY);
+        Component prompt = Component.literal("Hold Alt for full details").withStyle(ChatFormatting.DARK_GRAY);
         if (insertIndex >= 0 && insertIndex <= tooltip.size()) {
             tooltip.add(insertIndex, prompt);
         } else {

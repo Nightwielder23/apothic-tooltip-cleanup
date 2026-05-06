@@ -19,6 +19,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
     public static final ForgeConfigSpec.BooleanValue SHIFT_TO_EXPAND;
     public static final ForgeConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
+    public static final ForgeConfigSpec.BooleanValue HIDE_APOTH_MARKER;
 
     public static final ForgeConfigSpec.BooleanValue RARITY_COLORS_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> COMMON;
@@ -60,11 +61,14 @@ public class Config {
         builder.comment("Hides potion-style affix descriptions.");
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
 
-        builder.comment("Hides affix detail unless shift is held.");
+        builder.comment("Hides affix detail unless Alt is held. Config key kept as shift_to_expand for backwards compatibility.");
         SHIFT_TO_EXPAND = builder.define("shift_to_expand", false);
 
         builder.comment("Hides the bonus durability line.");
         HIDE_DURABILITY_BONUS = builder.define("hide_durability_bonus", false);
+
+        builder.comment("Hides the APOTH_REMOVE_MARKER literal text that leaks through from Apotheosis.");
+        HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", true);
 
         builder.pop();
 

@@ -22,6 +22,8 @@ public final class GemDisplayCompactor {
 
     public static void apply(ItemStack stack, List<Component> tooltip) {
         String category = resolveCategory(stack);
+        // Null when the hovered item is a raw gem itself: no equipment category to filter against,
+        // so we leave the gem's per-category bonus list intact.
         if (category == null) return;
         String matchSuffix = "." + category + ".desc";
         tooltip.removeIf(c -> {
