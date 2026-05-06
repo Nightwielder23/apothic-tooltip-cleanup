@@ -44,5 +44,22 @@ public class TooltipHandler {
         if (Config.COMPACT_GEM_DISPLAY.get()) {
             GemDisplayCompactor.apply(stack, tooltip);
         }
+
+        if (Config.CLEAN_AFFIX_PREFIXES.get()) {
+            PrefixCleaner.apply(tooltip);
+        }
+
+        String sortOrder = Config.AFFIX_SORT_ORDER.get();
+        if (!"default".equals(sortOrder)) {
+            AffixSorter.apply(tooltip, sortOrder);
+        }
+
+        if (Config.MERGE_EMPTY_SOCKETS.get()) {
+            EmptySocketMerger.apply(tooltip);
+        }
+
+        if (Config.DISABLE_POTION_DESCRIPTIONS.get() && ApotheosisDetector.isApothicAttributesLoaded()) {
+            PotionDescriptionToggle.apply(stack, tooltip);
+        }
     }
 }
