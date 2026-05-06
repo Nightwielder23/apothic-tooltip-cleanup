@@ -3,6 +3,7 @@ package com.nightwielder.apothictooltipcleanup.handler;
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
 import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.ApotheosisDetector;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,5 +62,39 @@ public class TooltipHandler {
         if (Config.DISABLE_POTION_DESCRIPTIONS.get() && ApotheosisDetector.isApothicAttributesLoaded()) {
             PotionDescriptionToggle.apply(stack, tooltip);
         }
+
+        if (Config.SHIFT_TO_EXPAND.get()) {
+            ShiftExpandHandler.apply(tooltip);
+        }
+
+        if (Config.HIDE_DURABILITY_BONUS.get()) {
+            DurabilityHider.apply(tooltip);
+        }
+
+        if (Config.RARITY_COLORS_ENABLED.get()) {
+            String hex = resolveRarityHex(stack);
+            if (hex != null) {
+                RarityColorOverride.apply(stack, tooltip, hex);
+            }
+        }
+    }
+
+    private static String resolveRarityHex(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains("affix_data")) return null;
+        String rarity = tag.getCompound("affix_data").getString("rarity");
+        if (rarity == null || rarity.isEmpty()) return null;
+        if (rarity.startsWith("apotheosis:")) {
+            rarity = rarity.substring("apotheosis:".length());
+        }
+        return switch (rarity) {
+            case "common" -> Config.COMMON.get();
+            case "uncommon" -> Config.UNCOMMON.get();
+            case "rare" -> Config.RARE.get();
+            case "epic" -> Config.EPIC.get();
+            case "mythic" -> Config.MYTHIC.get();
+            case "ancient" -> Config.ANCIENT.get();
+            default -> null;
+        };
     }
 }

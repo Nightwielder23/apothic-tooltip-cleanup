@@ -21,7 +21,7 @@ public final class AffixSorter {
         List<Component> affixLines = new ArrayList<>();
         for (int i = 0; i < tooltip.size(); i++) {
             Component line = tooltip.get(i);
-            if (isAffixLine(line)) {
+            if (TooltipMatcher.keyStartsWithRecursive(line, AFFIX_KEY_PREFIX)) {
                 indices.add(i);
                 affixLines.add(line);
             }
@@ -47,17 +47,6 @@ public final class AffixSorter {
             case "type" -> Comparator.comparing(AffixSorter::extractType);
             default -> null;
         };
-    }
-
-    private static boolean isAffixLine(Component component) {
-        if (!TooltipMatcher.isApotheosisLine(component)) return false;
-        String key = TooltipMatcher.getKey(component);
-        if (key != null && key.startsWith(AFFIX_KEY_PREFIX)) return true;
-        for (Component sibling : component.getSiblings()) {
-            String siblingKey = TooltipMatcher.getKey(sibling);
-            if (siblingKey != null && siblingKey.startsWith(AFFIX_KEY_PREFIX)) return true;
-        }
-        return false;
     }
 
     private static String getAffixKey(Component component) {

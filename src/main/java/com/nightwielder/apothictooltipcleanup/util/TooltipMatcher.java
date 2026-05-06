@@ -41,4 +41,23 @@ public final class TooltipMatcher {
         }
         return false;
     }
+
+    public static boolean keyEqualsRecursive(Component component, String key) {
+        if (component == null) return false;
+        if (key.equals(getKey(component))) return true;
+        for (Component sibling : component.getSiblings()) {
+            if (keyEqualsRecursive(sibling, key)) return true;
+        }
+        return false;
+    }
+
+    public static boolean keyStartsWithRecursive(Component component, String prefix) {
+        if (component == null) return false;
+        String key = getKey(component);
+        if (key != null && key.startsWith(prefix)) return true;
+        for (Component sibling : component.getSiblings()) {
+            if (keyStartsWithRecursive(sibling, prefix)) return true;
+        }
+        return false;
+    }
 }
