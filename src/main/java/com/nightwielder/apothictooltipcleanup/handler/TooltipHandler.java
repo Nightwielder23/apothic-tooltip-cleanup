@@ -1,20 +1,48 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
+import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.ApotheosisDetector;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT)
+import java.util.List;
+
+@Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TooltipHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTooltip(ItemTooltipEvent event) {
-        if (event.getEntity() == null) return;
-        if (event.getItemStack().isEmpty()) return;
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty()) return;
         if (!ApotheosisDetector.isApotheosisLoaded()) return;
+
+        List<Component> tooltip = event.getToolTip();
+
+        if (Config.HIDE_FITS_IN.get()) {
+            FitsInRemover.apply(tooltip);
+        }
+
+        List<? extends String> hiddenIds = Config.HIDDEN_AFFIX_IDS.get();
+        if (!hiddenIds.isEmpty()) {
+            HiddenAffixHandler.apply(tooltip, hiddenIds);
+        }
+
+        if (Config.HIDE_SOURCE_LINE.get()) {
+            SourceLineRemover.apply(tooltip);
+        }
+
+        if (Config.DISABLE_SUMMARIZATION.get()) {
+            SummarizationDisabler.apply(tooltip);
+        }
+
+        if (Config.COMPACT_GEM_DISPLAY.get()) {
+            GemDisplayCompactor.apply(stack, tooltip);
+        }
     }
 }
