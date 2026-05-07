@@ -8,8 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public final class AffixSorter {
-    private static final String DOT_PREFIX_KEY = "text.apotheosis.dot_prefix";
-
     private AffixSorter() {}
 
     // TODO: multi-line affixes are treated as single rows in v1.0. Single-line is the common case in 1.20.1.
@@ -20,7 +18,7 @@ public final class AffixSorter {
         List<Component> affixLines = new ArrayList<>();
         for (int i = 0; i < tooltip.size(); i++) {
             Component line = tooltip.get(i);
-            if (TooltipMatcher.keyStartsWith(line, DOT_PREFIX_KEY)) {
+            if (TooltipMatcher.isAffixLine(line)) {
                 indices.add(i);
                 affixLines.add(line);
             }

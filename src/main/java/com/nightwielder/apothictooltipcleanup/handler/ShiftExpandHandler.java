@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public final class ShiftExpandHandler {
-    private static final String DOT_PREFIX_KEY = "text.apotheosis.dot_prefix";
     private static final int VISIBLE_AFFIX_LIMIT = 3;
 
     private ShiftExpandHandler() {}
@@ -22,30 +21,29 @@ public final class ShiftExpandHandler {
         int affixesKept = 0;
         int liveIndex = 0;
         int insertIndex = -1;
-        boolean removed = false;
+        int affixesRemoved = 0;
         Iterator<Component> it = tooltip.iterator();
         while (it.hasNext()) {
             Component line = it.next();
             if (DurabilityHider.isDurableLine(line)) {
                 it.remove();
-                removed = true;
                 continue;
             }
-            if (TooltipMatcher.keyStartsWith(line, DOT_PREFIX_KEY)) {
+            if (TooltipMatcher.isAffixLine(line)) {
                 if (affixesKept < VISIBLE_AFFIX_LIMIT) {
                     affixesKept++;
                     liveIndex++;
                 } else {
                     if (insertIndex < 0) insertIndex = liveIndex;
                     it.remove();
-                    removed = true;
+                    affixesRemoved++;
                 }
             } else {
                 liveIndex++;
             }
         }
 
-        if (!removed) return;
+        if (affixesRemoved == 0) return;
 
         Component prompt = Component.literal("Hold Alt for full details").withStyle(ChatFormatting.DARK_GRAY);
         if (insertIndex >= 0 && insertIndex <= tooltip.size()) {

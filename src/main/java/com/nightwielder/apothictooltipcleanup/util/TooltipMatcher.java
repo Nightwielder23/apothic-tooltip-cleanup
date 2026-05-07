@@ -31,6 +31,20 @@ public final class TooltipMatcher {
         return key != null && key.startsWith(prefix);
     }
 
+    // Real affix lines are prose ("On hit, ...", "When held, ..."), while gem bonus lines on
+    // sockets follow "<Category>: <effect>". Both share the dot_prefix wrapper, so we check
+    // whether ":" is the first punctuation character in the rendered text.
+    public static boolean isAffixLine(Component component) {
+        if (!keyStartsWith(component, "text.apotheosis.dot_prefix")) return false;
+        String text = component.getString();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == ':') return false;
+            if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';') return true;
+        }
+        return true;
+    }
+
     public static boolean isApotheosisLine(Component component) {
         if (component == null) return false;
         String key = getKey(component);

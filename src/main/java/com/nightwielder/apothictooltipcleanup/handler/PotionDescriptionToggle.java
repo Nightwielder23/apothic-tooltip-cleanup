@@ -10,7 +10,6 @@ import java.util.List;
 public final class PotionDescriptionToggle {
     private PotionDescriptionToggle() {}
 
-    // Exact key prefix may need refinement once Apothic Attributes runtime keys are verified.
     public static void apply(ItemStack stack, List<Component> tooltip) {
         if (!(stack.getItem() instanceof PotionItem)) return;
         tooltip.removeIf(c -> TooltipMatcher.keyStartsWith(c, "apothic_attributes:"));

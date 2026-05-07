@@ -2,9 +2,11 @@ package com.nightwielder.apothictooltipcleanup.util;
 
 import net.minecraftforge.fml.ModList;
 
-public class ApotheosisDetector {
+public final class ApotheosisDetector {
     private static Boolean apotheosisLoaded;
     private static Boolean apothicAttributesLoaded;
+
+    private ApotheosisDetector() {}
 
     public static boolean isApotheosisLoaded() {
         if (apotheosisLoaded == null) {
