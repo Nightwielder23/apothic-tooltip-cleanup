@@ -46,7 +46,7 @@ public class Config {
         builder.comment("Hides the Apotheosis summarized affix line.");
         DISABLE_SUMMARIZATION = builder.define("disable_summarization", false);
 
-        builder.comment("Renders gems on a single line.");
+        builder.comment("Renders gems on a single line. Currently only affects raw gem item hovers. Compact display on socketed items requires graphical-component hooking and is planned for a future version.");
         COMPACT_GEM_DISPLAY = builder.define("compact_gem_display", false);
 
         builder.comment("Strips prefixes from affix names.");
@@ -55,7 +55,7 @@ public class Config {
         builder.comment("Sort order for affix lines: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
 
-        builder.comment("Collapses empty sockets into one counted line.");
+        builder.comment("Collapses empty sockets into one counted line. Currently only affects raw gem item hovers. Compact display on socketed items requires graphical-component hooking and is planned for a future version.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", false);
 
         builder.comment("Hides potion-style affix descriptions.");
@@ -67,8 +67,8 @@ public class Config {
         builder.comment("Hides the bonus durability line.");
         HIDE_DURABILITY_BONUS = builder.define("hide_durability_bonus", false);
 
-        builder.comment("Hides the APOTH_REMOVE_MARKER literal text that leaks through from Apotheosis.");
-        HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", true);
+        builder.comment("Hides the APOTH_REMOVE_MARKER literal text. Only enable if the marker is leaking through visibly. Note: Apotheosis uses this marker as a placeholder for its graphical socket display, so enabling this can hide the socket UI on socketed items.");
+        HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);
 
         builder.pop();
 

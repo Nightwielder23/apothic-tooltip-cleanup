@@ -22,20 +22,18 @@ public final class FitsInRemover {
             j++;
         }
 
-        // Phase 2: state machine for header blocks. Headers seen on loose gems and socketed items:
-        //   text.apotheosis.socketable_into       -> "Fits In:"
-        //   text.apotheosis.when_socketed_in      -> "When Socketed in:"
-        //   text.apotheosis.when_socketed         -> "When Socketed:"
-        //   text.apotheosis.when_socketed_typed   -> "When Socketed in <category>:"
-        // After a header we strip dot_prefix bullets and blank lines until we hit something else.
+        // Phase 2: state machine for the loose-gem headers only:
+        //   text.apotheosis.socketable_into  -> "Fits In:"
+        //   text.apotheosis.when_socketed_in -> "When Socketed in:"
+        // The when_socketed / when_socketed_typed variants appear on socketed items as per-socket
+        // headers, and the bullets that follow them are the actual gem bonus + empty socket lines
+        // we want to preserve, so they're intentionally excluded.
         int i = 0;
         while (i < tooltip.size()) {
             String key = TooltipMatcher.getKey(tooltip.get(i));
             boolean isHeader = key != null && (
                 key.startsWith("text.apotheosis.socketable_into") ||
                 key.startsWith("text.apotheosis.when_socketed_in") ||
-                key.startsWith("text.apotheosis.when_socketed_typed") ||
-                key.startsWith("text.apotheosis.when_socketed") ||
                 key.startsWith("text.apotheosis.fits_in")
             );
             if (!isHeader) {

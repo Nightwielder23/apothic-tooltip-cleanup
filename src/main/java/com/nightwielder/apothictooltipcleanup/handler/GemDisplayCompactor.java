@@ -17,6 +17,11 @@ import net.minecraft.world.item.TridentItem;
 
 import java.util.List;
 
+// Operates on raw gem item hover text only. On socketed items the per-socket gem bonuses are
+// drawn by Apotheosis's SocketTooltipRenderer (a ClientTooltipComponent), not added to
+// ItemTooltipEvent.getToolTip(), so they're invisible to this handler. Compact display on
+// socketed items would require hooking RenderTooltipEvent.GatherComponents and operating on
+// SocketTooltipRenderer.SocketComponent directly. Planned for a future version.
 public final class GemDisplayCompactor {
     private GemDisplayCompactor() {}
 
