@@ -40,13 +40,12 @@ public class Config {
         builder.comment("Deprecated. Use gem_tooltip_mode instead. When true and gem_tooltip_mode is unset, equivalent to gem_tooltip_mode = hidden.");
         HIDE_FITS_IN = builder.define("hide_fits_in", false);
 
-        builder.comment("Controls how gem info displays on raw gem items.",
+        builder.comment("Controls how raw gem tooltips display.",
                 "full = original Apotheosis layout with Unique tag, headers, and per-bullet category and bonus lines.",
-                "compact = strip headers, blank lines, and the Unique tag; keep all bullets.",
-                "tight = one line listing all categories, plus separate per-bonus bullets.",
-                "ultra = one line listing all categories, plus one line listing all bonuses.",
+                "compact = strip headers, blank lines, and the Unique tag; keep Apotheosis's natural per-line category bullets and bonus bullets in 'Category: +1 level to X' format. Strips 'level to existing' wording from bonuses.",
+                "ultra = one line listing all categories joined ('Applicable on: X, Y, Z'), one line listing all bonuses joined as '+1 level to Sharpness (Melee Weapons), +1 level to Protection (Core Armor)' style.",
                 "hidden = remove all gem info from the tooltip.");
-        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", List.of("full", "compact", "tight", "ultra", "hidden"));
+        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", List.of("full", "compact", "ultra", "hidden"));
 
         builder.comment("Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
@@ -67,7 +66,7 @@ public class Config {
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
 
         builder.comment("Collapses empty sockets on socketed items. All-empty becomes one summary line; mixed keeps filled gem icons with the empty count appended below.");
-        MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", false);
+        MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
 
         builder.comment("Hides potion-style affix descriptions.");
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);

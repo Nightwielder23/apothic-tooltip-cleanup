@@ -5,7 +5,7 @@ A client-side Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheo
 ## features
 
 - Truncate affix lists with Hold Alt to expand. Configurable: show all, show top N (default 3), or hide all unless Alt is held.
-- Compact gem tooltips on raw gems. Configurable modes: full, compact, tight, ultra, hidden.
+- Compact gem tooltips on raw gems. Configurable modes: full, compact, ultra, hidden.
 - Merge empty sockets on socketed items into one summary line. Mixed sockets are supported: filled gems still render, with the empty count shown below.
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
