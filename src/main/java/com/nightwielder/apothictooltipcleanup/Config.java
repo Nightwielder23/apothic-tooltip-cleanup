@@ -9,6 +9,7 @@ public class Config {
     public static final ForgeConfigSpec SPEC;
 
     public static final ForgeConfigSpec.BooleanValue HIDE_FITS_IN;
+    public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
     public static final ForgeConfigSpec.BooleanValue HIDE_SOURCE_LINE;
     public static final ForgeConfigSpec.BooleanValue DISABLE_SUMMARIZATION;
@@ -18,6 +19,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
     public static final ForgeConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
     public static final ForgeConfigSpec.BooleanValue SHIFT_TO_EXPAND;
+    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
+    public static final ForgeConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
     public static final ForgeConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
     public static final ForgeConfigSpec.BooleanValue HIDE_APOTH_MARKER;
 
@@ -34,8 +37,16 @@ public class Config {
 
         builder.push("features");
 
-        builder.comment("Removes the Fits In section from gem tooltips.");
+        builder.comment("Deprecated. Use gem_tooltip_mode instead. When true and gem_tooltip_mode is unset, equivalent to gem_tooltip_mode = hidden.");
         HIDE_FITS_IN = builder.define("hide_fits_in", false);
+
+        builder.comment("Controls how gem info displays on raw gem items.",
+                "full = original Apotheosis layout with Unique tag, headers, and per-bullet category and bonus lines.",
+                "compact = strip headers, blank lines, and the Unique tag; keep all bullets.",
+                "tight = one line listing all categories, plus separate per-bonus bullets.",
+                "ultra = one line listing all categories, plus one line listing all bonuses.",
+                "hidden = remove all gem info from the tooltip.");
+        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", List.of("full", "compact", "tight", "ultra", "hidden"));
 
         builder.comment("Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
@@ -55,14 +66,23 @@ public class Config {
         builder.comment("Sort order for affix lines: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
 
-        builder.comment("Collapses empty sockets into one counted line. Currently only affects raw gem item hovers. Compact display on socketed items requires graphical-component hooking and is planned for a future version.");
+        builder.comment("Collapses empty sockets into one summary line on socketed items. May not work on modpacks that runtime-patch Apotheosis (e.g. Fallen Gems & Affixes), since they bypass the standard socket rendering path.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", false);
 
         builder.comment("Hides potion-style affix descriptions.");
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
 
-        builder.comment("Hides affix detail unless Alt is held. Config key kept as shift_to_expand for backwards compatibility.");
-        SHIFT_TO_EXPAND = builder.define("shift_to_expand", false);
+        builder.comment("Deprecated. Use affix_display_mode instead. When false, disables affix display modification entirely.");
+        SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
+
+        builder.comment("Controls how many affixes show on a tooltip.",
+                "all = show every affix.",
+                "top_n = show only the first N affixes; rest visible with Alt held.",
+                "alt_only = hide every affix unless Alt is held.");
+        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "top_n", List.of("all", "top_n", "alt_only"));
+
+        builder.comment("Number of affixes shown when affix_display_mode is top_n. Range 0 to 99. Default 3.");
+        AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
 
         builder.comment("Hides the bonus durability line.");
         HIDE_DURABILITY_BONUS = builder.define("hide_durability_bonus", false);

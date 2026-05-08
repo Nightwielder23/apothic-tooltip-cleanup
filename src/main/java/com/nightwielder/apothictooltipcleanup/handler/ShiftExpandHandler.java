@@ -1,5 +1,6 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
+import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,14 +10,17 @@ import java.util.Iterator;
 import java.util.List;
 
 public final class ShiftExpandHandler {
-    private static final int VISIBLE_AFFIX_LIMIT = 3;
-
     private ShiftExpandHandler() {}
 
     // Config key kept as shift_to_expand for backwards compatibility. Shift triggers vanilla quick-move
     // and EpicFight's innate skill display, and Ctrl conflicts with other tooltip mods, so we gate on Alt.
     public static void apply(List<Component> tooltip) {
+        String mode = Config.AFFIX_DISPLAY_MODE.get();
+        if ("all".equalsIgnoreCase(mode)) return;
         if (Screen.hasAltDown()) return;
+
+        boolean altOnly = "alt_only".equalsIgnoreCase(mode);
+        int visibleCount = altOnly ? 0 : Math.max(0, Config.AFFIX_VISIBLE_COUNT.get());
 
         int affixesKept = 0;
         int liveIndex = 0;
@@ -30,7 +34,7 @@ public final class ShiftExpandHandler {
                 continue;
             }
             if (TooltipMatcher.isAffixLine(line)) {
-                if (affixesKept < VISIBLE_AFFIX_LIMIT) {
+                if (affixesKept < visibleCount) {
                     affixesKept++;
                     liveIndex++;
                 } else {

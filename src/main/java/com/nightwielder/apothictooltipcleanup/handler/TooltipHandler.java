@@ -25,9 +25,7 @@ public class TooltipHandler {
 
         List<Component> tooltip = event.getToolTip();
 
-        if (Config.HIDE_FITS_IN.get()) {
-            FitsInRemover.apply(tooltip);
-        }
+        FitsInRemover.apply(tooltip);
 
         List<? extends String> hiddenIds = Config.HIDDEN_AFFIX_IDS.get();
         if (!hiddenIds.isEmpty()) {

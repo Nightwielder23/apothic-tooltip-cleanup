@@ -7,12 +7,10 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-// The socket.apotheosis.empty key is emitted by Apotheosis's SocketTooltipRenderer
-// (a ClientTooltipComponent) and drawn straight to the font, never added to
-// ItemTooltipEvent.getToolTip(). On the standard rendering path this handler matches nothing.
-// Collapsing the rendered empty-socket rows would require hooking
-// RenderTooltipEvent.GatherComponents and operating on SocketTooltipRenderer.SocketComponent
-// directly. Planned for a future version.
+// Text-path fallback for the merge-empty-sockets feature. socket.apotheosis.empty doesn't reach
+// ItemTooltipEvent.getToolTip() on the standard render path - that case is handled by
+// SocketCompactor at RenderTooltipEvent.GatherComponents. This handler still runs in case some
+// modpack setup leaks the key into the text tooltip.
 public final class EmptySocketMerger {
     private static final String EMPTY_SOCKET_KEY = "socket.apotheosis.empty";
 
