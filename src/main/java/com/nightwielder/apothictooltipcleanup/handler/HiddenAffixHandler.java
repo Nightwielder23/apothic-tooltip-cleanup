@@ -9,6 +9,7 @@ public final class HiddenAffixHandler {
     private HiddenAffixHandler() {}
 
     public static void apply(List<Component> tooltip, List<? extends String> hiddenIds) {
+        if (hiddenIds == null || hiddenIds.isEmpty()) return;
         tooltip.removeIf(c -> {
             String key = TooltipMatcher.getKey(c);
             if (key == null || !key.startsWith("affix.apotheosis:")) return false;

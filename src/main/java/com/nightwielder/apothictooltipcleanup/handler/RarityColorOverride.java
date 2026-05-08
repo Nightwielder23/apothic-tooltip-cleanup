@@ -1,5 +1,6 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
+import com.nightwielder.apothictooltipcleanup.Config;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
@@ -11,6 +12,7 @@ public final class RarityColorOverride {
     private RarityColorOverride() {}
 
     public static void apply(ItemStack stack, List<Component> tooltip, String hexColor) {
+        if (!Config.RARITY_COLORS_ENABLED.get()) return;
         if (stack.isEmpty() || tooltip.isEmpty() || hexColor == null) return;
         int rgb;
         try {

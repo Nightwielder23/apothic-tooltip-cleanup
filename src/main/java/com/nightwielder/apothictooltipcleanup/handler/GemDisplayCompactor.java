@@ -1,5 +1,6 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
+import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,6 +25,7 @@ public final class GemDisplayCompactor {
     private GemDisplayCompactor() {}
 
     public static void apply(ItemStack stack, List<Component> tooltip) {
+        if (!Config.COMPACT_GEM_DISPLAY.get()) return;
         String category = resolveCategory(stack);
         // Raw gems and other non-equipment items get no category, so we skip them.
         if (category == null) return;

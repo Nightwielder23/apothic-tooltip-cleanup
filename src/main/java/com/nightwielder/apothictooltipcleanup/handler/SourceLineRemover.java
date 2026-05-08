@@ -1,5 +1,6 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
+import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.network.chat.Component;
 
@@ -11,6 +12,7 @@ public final class SourceLineRemover {
     private SourceLineRemover() {}
 
     public static void apply(List<Component> tooltip) {
+        if (!Config.HIDE_SOURCE_LINE.get()) return;
         tooltip.removeIf(c -> TooltipMatcher.keyStartsWith(c, POTION_CHARM_SOURCE_KEY));
     }
 }
