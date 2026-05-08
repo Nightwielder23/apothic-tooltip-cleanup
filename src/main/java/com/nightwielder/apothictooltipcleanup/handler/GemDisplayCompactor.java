@@ -17,18 +17,15 @@ import net.minecraft.world.item.TridentItem;
 
 import java.util.List;
 
-// Operates on raw gem item hover text only. On socketed items the per-socket gem bonuses are
-// drawn by Apotheosis's SocketTooltipRenderer (a ClientTooltipComponent), not added to
-// ItemTooltipEvent.getToolTip(), so they're invisible to this handler. Compact display on
-// socketed items would require hooking RenderTooltipEvent.GatherComponents and operating on
-// SocketTooltipRenderer.SocketComponent directly. Planned for a future version.
+// Filters bonus.apotheosis:* lines on equipment hovers down to the wielder's category. Those
+// keys are usually nested inside dot_prefix args on the live tooltip path, so matches are rare;
+// socket-side compaction is in SocketCompactor.
 public final class GemDisplayCompactor {
     private GemDisplayCompactor() {}
 
     public static void apply(ItemStack stack, List<Component> tooltip) {
         String category = resolveCategory(stack);
-        // Null when the hovered item is a raw gem itself: no equipment category to filter against,
-        // so we leave the gem's per-category bonus list intact.
+        // Raw gems and other non-equipment items get no category, so we skip them.
         if (category == null) return;
         String matchSuffix = "." + category + ".desc";
         tooltip.removeIf(c -> {

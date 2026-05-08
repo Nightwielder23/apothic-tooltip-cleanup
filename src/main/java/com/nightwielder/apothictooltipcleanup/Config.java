@@ -66,7 +66,7 @@ public class Config {
         builder.comment("Sort order for affix lines: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
 
-        builder.comment("Collapses empty sockets into one summary line on socketed items. May not work on modpacks that runtime-patch Apotheosis (e.g. Fallen Gems & Affixes), since they bypass the standard socket rendering path.");
+        builder.comment("Collapses empty sockets on socketed items. All-empty becomes one summary line; mixed keeps filled gem icons with the empty count appended below.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", false);
 
         builder.comment("Hides potion-style affix descriptions.");
