@@ -45,89 +45,85 @@ public class Config {
 
         builder.push("features");
 
-        builder.comment("--- Affix display ---");
-
-        builder.comment("Controls how many affixes show on a tooltip.",
-                "all = show every affix.",
-                "top_n = show only the first N affixes; rest visible with Alt held.",
-                "alt_only = hide every affix unless Alt is held.");
+        builder.comment(" affix display",
+                " ============================================================",
+                " Controls how many affixes show on a tooltip.",
+                " all = show every affix",
+                " top_n = show first N, rest visible with Alt held",
+                " alt_only = hide every affix unless Alt is held");
         AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "top_n", List.of("all", "top_n", "alt_only"));
 
-        builder.comment("Number of affixes shown when affix_display_mode is top_n. Range 0 to 99.");
+        builder.comment(" Number of affixes shown when mode is top_n.");
         AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
 
-        builder.comment("Deprecated. Use affix_display_mode instead. When false, disables affix display modification entirely.");
-        SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
-
-        builder.comment("Sort order for affix lines: default, rarity, alphabetical, type.");
+        builder.comment(" Sort order: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
 
-        builder.comment("Strips prefixes from affix names.");
+        builder.comment(" Strips prefixes from affix names.");
         CLEAN_AFFIX_PREFIXES = builder.define("clean_affix_prefixes", false);
 
-        builder.comment("Translation key prefixes of affixes to hide.");
+        builder.comment(" Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
 
-        builder.comment("--- Affix tooltip lines ---");
+        builder.comment(" Deprecated, use affix_display_mode instead.");
+        SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
 
-        builder.comment("Hides the affix source line.");
+        builder.comment(" affix tooltip lines",
+                " ============================================================",
+                " Hides the affix source line.");
         HIDE_SOURCE_LINE = builder.define("hide_source_line", false);
 
-        builder.comment("Hides the Apotheosis summarized affix line.");
+        builder.comment(" Hides the summary block (Cold/Fire/HP%/Spell Resistance lines).");
         DISABLE_SUMMARIZATION = builder.define("disable_summarization", false);
 
-        builder.comment("Hides the bonus durability line.");
+        builder.comment(" Hides the \"ignores X% of durability damage\" line.");
         HIDE_DURABILITY_BONUS = builder.define("hide_durability_bonus", false);
 
-        builder.comment("Hides potion-style affix descriptions.");
+        builder.comment(" Hides potion-style affix descriptions.");
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
 
-        builder.comment("--- Gem display (raw gems) ---");
-
-        builder.comment("Controls how raw gem tooltips display.",
-                "full = original Apotheosis layout with Unique tag, headers, and per-bullet category and bonus lines.",
-                "compact = strip headers, blank lines, and the Unique tag; keep Apotheosis's natural per-line category bullets and bonus bullets in 'Category: +1 level to X' format. Strips 'level to existing' wording from bonuses.",
-                "ultra = one line listing all categories joined ('Applicable on: X, Y, Z'), one line listing all bonuses joined as '+1 level to Sharpness (Melee Weapons), +1 level to Protection (Core Armor)' style.",
-                "hidden = remove all gem info from the tooltip.");
+        builder.comment(" gem display (raw gems)",
+                " ============================================================",
+                " Controls how raw gem tooltips display.",
+                " full = original Apotheosis layout",
+                " compact = strip headers, keep per-bullet categories and bonuses",
+                " ultra = one line for categories, one line for bonuses",
+                " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", List.of("full", "compact", "ultra", "hidden"));
 
-        builder.comment("Legacy. Renders gems on a single line on raw gem hovers. Superseded by gem_tooltip_mode.");
+        builder.comment(" Legacy, superseded by gem_tooltip_mode.");
         COMPACT_GEM_DISPLAY = builder.define("compact_gem_display", false);
 
-        builder.comment("Deprecated. Use gem_tooltip_mode instead. When true and gem_tooltip_mode is unset, equivalent to gem_tooltip_mode = hidden.");
+        builder.comment(" Deprecated, use gem_tooltip_mode instead.");
         HIDE_FITS_IN = builder.define("hide_fits_in", false);
 
-        builder.comment("--- Sockets ---");
-
-        builder.comment("Collapses empty sockets on socketed items. All-empty becomes one summary line; mixed keeps filled gem icons with the empty count appended below.");
+        builder.comment(" sockets",
+                " ============================================================",
+                " Merges empty sockets into one summary line.",
+                " All-empty: single line replaces the empty rows.",
+                " Mixed: filled gems still render, empty count appended below.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
 
-        builder.comment("Hides the APOTH_REMOVE_MARKER literal text. Only enable if the marker is leaking through visibly. Note: Apotheosis uses this marker as a placeholder for its graphical socket display, so enabling this can hide the socket UI on socketed items.");
+        builder.comment(" Hides the APOTH_REMOVE_MARKER literal text.",
+                " Only enable if the marker is leaking through visibly.",
+                " Can hide the socket UI on socketed items if enabled.");
         HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);
 
         builder.pop();
 
         builder.push("rarity_colors");
 
-        builder.comment("Enables custom rarity color overrides.");
+        builder.comment(" Enables custom rarity color overrides.",
+                " When false, vanilla Apotheosis colors are used.");
         RARITY_COLORS_ENABLED = builder.define("rarity_colors_enabled", false);
 
-        builder.comment("Common rarity color (0xRRGGBB).");
+        builder.comment(" Hex format: 0xRRGGBB");
         COMMON = builder.define("common", "0xAAAAAA");
 
-        builder.comment("Uncommon rarity color (0xRRGGBB).");
         UNCOMMON = builder.define("uncommon", "0x55FF55");
-
-        builder.comment("Rare rarity color (0xRRGGBB).");
         RARE = builder.define("rare", "0x55FFFF");
-
-        builder.comment("Epic rarity color (0xRRGGBB).");
         EPIC = builder.define("epic", "0xFF55FF");
-
-        builder.comment("Mythic rarity color (0xRRGGBB).");
         MYTHIC = builder.define("mythic", "0xFFAA00");
-
-        builder.comment("Ancient rarity color (0xRRGGBB).");
         ANCIENT = builder.define("ancient", "0xFF5555");
 
         builder.pop();
