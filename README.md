@@ -16,8 +16,6 @@ A client-side Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheo
 - Hide individual affixes by translation key prefix.
 - Hide potion-style affix descriptions.
 
-Most features default off. Edit the config file to opt in to whatever you want.
-
 ## configuration
 
 All toggles are in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
@@ -62,7 +60,7 @@ All toggles are in `config/apothic_tooltip_cleanup-client.toml`. The file regene
 
 ## compatibility
 
-- Apotheosis (required)
+- Apotheosis (soft dependency, the mod does nothing without it)
 - Apotheotic Additions (optional, supported)
 - Apothic Attributes (optional, supported)
 - Fallen Gems & Affixes (tested compatible)
