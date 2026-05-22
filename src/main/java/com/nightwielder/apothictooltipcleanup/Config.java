@@ -2,7 +2,6 @@ package com.nightwielder.apothictooltipcleanup;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-import java.util.Collections;
 import java.util.List;
 
 public class Config {
@@ -63,7 +62,7 @@ public class Config {
         CLEAN_AFFIX_PREFIXES = builder.define("clean_affix_prefixes", false);
 
         builder.comment(" Translation key prefixes of affixes to hide.");
-        HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
+        HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", List.of(), () -> "", o -> o instanceof String);
 
         builder.comment(" Deprecated, replaced by alt_only mode in affix_display_mode. Slated for removal.");
         SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
