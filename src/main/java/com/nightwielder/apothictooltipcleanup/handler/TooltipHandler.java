@@ -3,18 +3,20 @@ package com.nightwielder.apothictooltipcleanup.handler;
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
 import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.ApotheosisDetector;
-import net.minecraft.nbt.CompoundTag;
+import dev.shadowsoffire.apotheosis.affix.AffixHelper;
+import dev.shadowsoffire.apotheosis.loot.LootRarity;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public class TooltipHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -82,16 +84,9 @@ public class TooltipHandler {
     }
 
     private static String resolveRarityHex(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains("affix_data")) return null;
-        String rarity = tag.getCompound("affix_data").getString("rarity");
-        if (rarity == null || rarity.isEmpty()) return null;
-        // Strip whatever namespace produced the rarity (apotheosis:, apotheotic_additions:, etc).
-        int colon = rarity.indexOf(':');
-        if (colon >= 0) {
-            rarity = rarity.substring(colon + 1);
-        }
-        // Unknown rarities (e.g. apotheotic_additions:esoteric) fall through to ancient as the highest tier.
+        DynamicHolder<LootRarity> holder = AffixHelper.getRarity(stack);
+        if (!holder.isBound()) return null;
+        String rarity = holder.getId().getPath();
         return switch (rarity) {
             case "common" -> Config.COMMON.get();
             case "uncommon" -> Config.UNCOMMON.get();
