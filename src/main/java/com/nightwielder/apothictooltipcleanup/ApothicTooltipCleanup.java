@@ -1,16 +1,15 @@
 package com.nightwielder.apothictooltipcleanup;
 
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 
 @Mod(ApothicTooltipCleanup.MODID)
 public class ApothicTooltipCleanup {
     public static final String MODID = "apothic_tooltip_cleanup";
 
-    public ApothicTooltipCleanup() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
-        FMLJavaModLoadingContext.get().getModEventBus().register(this);
+    public ApothicTooltipCleanup(IEventBus modEventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
     }
 }

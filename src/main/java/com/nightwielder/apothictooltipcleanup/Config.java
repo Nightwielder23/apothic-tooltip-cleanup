@@ -1,47 +1,47 @@
 package com.nightwielder.apothictooltipcleanup;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.Collections;
 import java.util.List;
 
 public class Config {
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
     // Affix display
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
-    public static final ForgeConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
-    public static final ForgeConfigSpec.BooleanValue SHIFT_TO_EXPAND;
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_SORT_ORDER;
-    public static final ForgeConfigSpec.BooleanValue CLEAN_AFFIX_PREFIXES;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
+    public static final ModConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
+    public static final ModConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
+    public static final ModConfigSpec.BooleanValue SHIFT_TO_EXPAND;
+    public static final ModConfigSpec.ConfigValue<String> AFFIX_SORT_ORDER;
+    public static final ModConfigSpec.BooleanValue CLEAN_AFFIX_PREFIXES;
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
 
     // Affix tooltip lines
-    public static final ForgeConfigSpec.BooleanValue HIDE_SOURCE_LINE;
-    public static final ForgeConfigSpec.BooleanValue DISABLE_SUMMARIZATION;
-    public static final ForgeConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
-    public static final ForgeConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
+    public static final ModConfigSpec.BooleanValue HIDE_SOURCE_LINE;
+    public static final ModConfigSpec.BooleanValue DISABLE_SUMMARIZATION;
+    public static final ModConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
+    public static final ModConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
 
     // Gem display (raw gems)
-    public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
-    public static final ForgeConfigSpec.BooleanValue COMPACT_GEM_DISPLAY;
-    public static final ForgeConfigSpec.BooleanValue HIDE_FITS_IN;
+    public static final ModConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
+    public static final ModConfigSpec.BooleanValue COMPACT_GEM_DISPLAY;
+    public static final ModConfigSpec.BooleanValue HIDE_FITS_IN;
 
     // Sockets
-    public static final ForgeConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
-    public static final ForgeConfigSpec.BooleanValue HIDE_APOTH_MARKER;
+    public static final ModConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
+    public static final ModConfigSpec.BooleanValue HIDE_APOTH_MARKER;
 
     // Rarity colors
-    public static final ForgeConfigSpec.BooleanValue RARITY_COLORS_ENABLED;
-    public static final ForgeConfigSpec.ConfigValue<String> COMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> UNCOMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> RARE;
-    public static final ForgeConfigSpec.ConfigValue<String> EPIC;
-    public static final ForgeConfigSpec.ConfigValue<String> MYTHIC;
-    public static final ForgeConfigSpec.ConfigValue<String> ANCIENT;
+    public static final ModConfigSpec.BooleanValue RARITY_COLORS_ENABLED;
+    public static final ModConfigSpec.ConfigValue<String> COMMON;
+    public static final ModConfigSpec.ConfigValue<String> UNCOMMON;
+    public static final ModConfigSpec.ConfigValue<String> RARE;
+    public static final ModConfigSpec.ConfigValue<String> EPIC;
+    public static final ModConfigSpec.ConfigValue<String> MYTHIC;
+    public static final ModConfigSpec.ConfigValue<String> ANCIENT;
 
     static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push("features");
 
@@ -65,7 +65,7 @@ public class Config {
         builder.comment(" Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
 
-        builder.comment(" Deprecated, use affix_display_mode instead.");
+        builder.comment(" Deprecated, replaced by alt_only mode in affix_display_mode. Slated for removal.");
         SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
 
         builder.comment(" affix tooltip lines",
@@ -124,6 +124,7 @@ public class Config {
         RARE = builder.define("rare", "0x55FFFF");
         EPIC = builder.define("epic", "0xFF55FF");
         MYTHIC = builder.define("mythic", "0xFFAA00");
+        builder.comment(" Color used for unknown rarities. In Apotheosis 8.x ancient is no longer a built-in rarity, but this color still applies to Apotheotic Additions esoteric and any other unrecognized rarity.");
         ANCIENT = builder.define("ancient", "0xFF5555");
 
         builder.pop();
