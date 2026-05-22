@@ -71,7 +71,7 @@ public final class FitsInRemover {
 
             if (isFits) {
                 if (ultra) {
-                    List<String> names = sortByGroup(extractCategoryNames(tooltip, i + 1, afterBullets));
+                    List<String> names = sortByGroup(filterHidden(extractCategoryNames(tooltip, i + 1, afterBullets)));
                     removeRange(tooltip, i, afterBullets);
                     if (!names.isEmpty()) {
                         tooltip.add(i, joinedCategoryBullet(String.join(", ", names)));
@@ -79,9 +79,36 @@ public final class FitsInRemover {
                     }
                     continue;
                 }
-                // compact: replace the header with a plain teal "Fits in:" line, leave category bullets below.
+                // compact: replace the header with a plain teal "Fits in:" line, then drop any
+                // hidden categories from the bullets below it.
                 tooltip.set(i, fitsInHeaderBullet());
+                int headerIndex = i;
                 i++;
+                int bulletIndex = i;
+                while (bulletIndex < afterBullets && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
+                    String inner = extractBulletText(tooltip.get(bulletIndex));
+                    if (inner == null || inner.isEmpty()) {
+                        bulletIndex++;
+                        continue;
+                    }
+                    List<String> names = splitCategories(inner);
+                    List<String> kept = filterHidden(names);
+                    if (kept.size() == names.size()) {
+                        bulletIndex++;
+                    } else if (kept.isEmpty()) {
+                        tooltip.remove(bulletIndex);
+                        afterBullets--;
+                    } else {
+                        tooltip.set(bulletIndex, compactCategoryBullet(String.join(", ", kept)));
+                        bulletIndex++;
+                    }
+                }
+                // Every category bullet filtered out leaves the header with nothing below it; drop it.
+                if (headerIndex + 1 >= tooltip.size()
+                        || !TooltipMatcher.isBulletPrefix(tooltip.get(headerIndex + 1))) {
+                    tooltip.remove(headerIndex);
+                    i--;
+                }
                 continue;
             }
 
@@ -121,6 +148,13 @@ public final class FitsInRemover {
     private static Component joinedCategoryBullet(String text) {
         return Component.translatable("text.apotheosis.dot_prefix",
                         Component.literal("Fits in: " + text))
+                .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
+    }
+
+    // Compact-mode category bullet rebuilt after hidden categories are dropped. No "Fits in:"
+    // prefix here; compact mode carries that on its own header line.
+    private static Component compactCategoryBullet(String text) {
+        return Component.translatable("text.apotheosis.dot_prefix", Component.literal(text))
                 .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
 
@@ -176,10 +210,17 @@ public final class FitsInRemover {
         for (int k = from; k < toExclusive; k++) {
             String inner = extractBulletText(tooltip.get(k));
             if (inner == null || inner.isEmpty()) continue;
-            for (String part : inner.split(",")) {
-                String trimmed = part.trim();
-                if (!trimmed.isEmpty()) names.add(trimmed);
-            }
+            names.addAll(splitCategories(inner));
+        }
+        return names;
+    }
+
+    // Splits a category bullet's inner text ("Swords, Bows, ...") into trimmed, non-empty names.
+    private static List<String> splitCategories(String inner) {
+        List<String> names = new ArrayList<>();
+        for (String part : inner.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) names.add(trimmed);
         }
         return names;
     }
@@ -232,5 +273,18 @@ public final class FitsInRemover {
         Set<String> s = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Collections.addAll(s, values);
         return s;
+    }
+
+    // Drops any category names listed in the hidden_gem_categories config, case-insensitively.
+    private static List<String> filterHidden(List<String> categories) {
+        List<? extends String> hidden = Config.HIDDEN_GEM_CATEGORIES.get();
+        if (hidden == null || hidden.isEmpty()) return categories;
+        Set<String> hiddenSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        hiddenSet.addAll(hidden);
+        List<String> filtered = new ArrayList<>(categories.size());
+        for (String name : categories) {
+            if (!hiddenSet.contains(name)) filtered.add(name);
+        }
+        return filtered;
     }
 }

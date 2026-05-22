@@ -25,6 +25,7 @@ public class Config {
 
     // Gem display (raw gems)
     public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_GEM_CATEGORIES;
 
     // Sockets
     public static final ForgeConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
@@ -89,6 +90,11 @@ public class Config {
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
+
+        builder.comment(" Category names to hide from gem 'Fits In' lists.",
+                " Example: [\"Bows\", \"Crossbows\"] to hide ranged weapons.",
+                " Case-insensitive. Has no effect when gem_tooltip_mode is full or hidden.");
+        HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", Collections.emptyList(), o -> o instanceof String);
 
         builder.comment(" sockets",
                 " ============================================================",
