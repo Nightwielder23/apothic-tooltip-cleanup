@@ -2,6 +2,7 @@ package com.nightwielder.apothictooltipcleanup;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Config {
@@ -50,13 +51,13 @@ public class Config {
                 " all = show every affix",
                 " top_n = show first N, rest visible with Alt held",
                 " alt_only = hide every affix unless Alt is held");
-        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "top_n", List.of("all", "top_n", "alt_only"));
+        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "top_n", Arrays.asList("all", "top_n", "alt_only"));
 
         builder.comment(" Number of affixes shown when mode is top_n.");
         AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
 
         builder.comment(" Sort order: default, rarity, alphabetical, type.");
-        AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", List.of("default", "rarity", "alphabetical", "type"));
+        AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "rarity", "alphabetical", "type"));
 
         builder.comment(" Strips prefixes from affix names.");
         CLEAN_AFFIX_PREFIXES = builder.define("clean_affix_prefixes", false);
@@ -88,7 +89,7 @@ public class Config {
                 " compact = strip headers, keep per-bullet categories and bonuses",
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
-        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", List.of("full", "compact", "ultra", "hidden"));
+        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
 
         builder.comment(" Legacy, superseded by gem_tooltip_mode.");
         COMPACT_GEM_DISPLAY = builder.define("compact_gem_display", false);
