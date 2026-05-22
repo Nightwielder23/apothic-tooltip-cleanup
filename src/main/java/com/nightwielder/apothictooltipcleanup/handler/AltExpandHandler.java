@@ -9,13 +9,12 @@ import net.minecraft.network.chat.Component;
 import java.util.Iterator;
 import java.util.List;
 
-public final class ShiftExpandHandler {
-    private ShiftExpandHandler() {}
+public final class AltExpandHandler {
+    private AltExpandHandler() {}
 
-    // Config key kept as shift_to_expand for backwards compatibility. Shift triggers vanilla quick-move
-    // and EpicFight's innate skill display, and Ctrl conflicts with other tooltip mods, so the gate is Alt.
+    // Alt is the expand modifier: Shift triggers vanilla quick-move and EpicFight's innate skill
+    // display, and Ctrl conflicts with other tooltip mods.
     public static void apply(List<Component> tooltip) {
-        if (!Config.SHIFT_TO_EXPAND.get()) return;
         String mode = Config.AFFIX_DISPLAY_MODE.get();
         if ("all".equalsIgnoreCase(mode)) return;
         if (Screen.hasAltDown()) return;

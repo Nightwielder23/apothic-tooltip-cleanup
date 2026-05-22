@@ -63,9 +63,7 @@ public class TooltipHandler {
             PotionDescriptionToggle.apply(stack, tooltip);
         }
 
-        if (Config.SHIFT_TO_EXPAND.get()) {
-            ShiftExpandHandler.apply(tooltip);
-        }
+        AltExpandHandler.apply(tooltip);
 
         if (Config.HIDE_DURABILITY_BONUS.get()) {
             DurabilityHider.apply(tooltip);

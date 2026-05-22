@@ -11,7 +11,6 @@ public class Config {
     // Affix display
     public static final ModConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
     public static final ModConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
-    public static final ModConfigSpec.BooleanValue SHIFT_TO_EXPAND;
     public static final ModConfigSpec.ConfigValue<String> AFFIX_SORT_ORDER;
     public static final ModConfigSpec.BooleanValue CLEAN_AFFIX_PREFIXES;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
@@ -64,9 +63,6 @@ public class Config {
 
         builder.comment(" Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", List.of(), () -> "", o -> o instanceof String);
-
-        builder.comment(" Deprecated, replaced by alt_only mode in affix_display_mode. Slated for removal.");
-        SHIFT_TO_EXPAND = builder.define("shift_to_expand", true);
 
         builder.comment(" affix tooltip lines",
                 " ============================================================",
