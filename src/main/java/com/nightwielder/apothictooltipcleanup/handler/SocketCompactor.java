@@ -8,11 +8,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Runs after Apotheosis's GatherComponents handler, which inserts the SocketComponent where
-// APOTH_REMOVE_MARKER used to sit. Reflection-based to avoid a compile-time dep on Apotheosis.
+// APOTH_SOCKET_MARKER used to sit. Reflection-based to avoid a compile-time dep on Apotheosis.
 // When 2+ sockets are empty: all-empty becomes a single text summary; mixed rebuilds the
 // SocketComponent with only the filled gems and inserts the summary line right after it.
 // Filled gem icons are preserved either way.
-@Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
 public final class SocketCompactor {
-    private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.adventure.client.SocketTooltipRenderer$SocketComponent";
+    private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.client.SocketTooltipRenderer$SocketComponent";
 
     private static volatile Method gemsAccessor;
     private static volatile Method socketedAccessor;

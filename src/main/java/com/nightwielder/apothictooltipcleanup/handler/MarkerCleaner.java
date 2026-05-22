@@ -10,6 +10,6 @@ public final class MarkerCleaner {
 
     public static void apply(List<Component> tooltip) {
         if (!Config.HIDE_APOTH_MARKER.get()) return;
-        tooltip.removeIf(c -> c.getString().contains("APOTH_REMOVE_MARKER"));
+        tooltip.removeIf(c -> c.getString().contains("APOTH_SOCKET_MARKER"));
     }
 }
