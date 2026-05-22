@@ -59,7 +59,7 @@ public final class FitsInRemover {
 
             int afterBullets = i + 1;
             while (afterBullets < tooltip.size()
-                    && TooltipMatcher.keyStartsWith(tooltip.get(afterBullets), "text.apotheosis.dot_prefix")) {
+                    && TooltipMatcher.isBulletPrefix(tooltip.get(afterBullets))) {
                 afterBullets++;
             }
 
@@ -196,8 +196,8 @@ public final class FitsInRemover {
         }
     }
 
-    // Each dot_prefix bullet is TranslatableContents("text.apotheosis.dot_prefix", [innerComponent]).
-    // The visible payload (categories or bonus text) is the rendered string of arg[0].
+    // Each bullet (dot_prefix or star_prefix) is a TranslatableContents whose arg[0] is the inner
+    // component. The visible payload (categories or bonus text) is the rendered string of arg[0].
     private static String extractBulletText(Component bullet) {
         if (!(bullet.getContents() instanceof TranslatableContents tc)) return null;
         Object[] args = tc.getArgs();
@@ -216,8 +216,8 @@ public final class FitsInRemover {
     private static void cleanupOrphanBlanks(List<Component> tooltip) {
         for (int k = tooltip.size() - 2; k >= 1; k--) {
             if (!isBlank(tooltip.get(k))) continue;
-            if (TooltipMatcher.keyStartsWith(tooltip.get(k - 1), "text.apotheosis.dot_prefix")
-                    && TooltipMatcher.keyStartsWith(tooltip.get(k + 1), "text.apotheosis.dot_prefix")) {
+            if (TooltipMatcher.isBulletPrefix(tooltip.get(k - 1))
+                    && TooltipMatcher.isBulletPrefix(tooltip.get(k + 1))) {
                 tooltip.remove(k);
             }
         }

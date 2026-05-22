@@ -31,11 +31,18 @@ public final class TooltipMatcher {
         return key != null && key.startsWith(prefix);
     }
 
+    // Apotheosis 7.x emphasizes some affix and bonus lines with star_prefix instead of dot_prefix;
+    // both are bullet wrappers, so input-side checks should accept either.
+    public static boolean isBulletPrefix(Component component) {
+        return keyStartsWith(component, "text.apotheosis.dot_prefix")
+                || keyStartsWith(component, "text.apotheosis.star_prefix");
+    }
+
     // Affix lines are prose ("On hit, ...", "When held, ..."), while gem bonus lines on
-    // sockets follow "<Category>: <effect>". Both share the dot_prefix wrapper, so the check is
+    // sockets follow "<Category>: <effect>". Both arrive bullet-wrapped, so the check is
     // whether ":" is the first punctuation character in the rendered text.
     public static boolean isAffixLine(Component component) {
-        if (!keyStartsWith(component, "text.apotheosis.dot_prefix")) return false;
+        if (!isBulletPrefix(component)) return false;
         String text = component.getString();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
