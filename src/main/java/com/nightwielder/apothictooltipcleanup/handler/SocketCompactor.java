@@ -91,7 +91,7 @@ public final class SocketCompactor {
                 elements.set(i, Either.<FormattedText, TooltipComponent>right((TooltipComponent) newSocketComponent));
                 elements.add(i + 1, Either.<FormattedText, TooltipComponent>left(summary));
                 i++;
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
                 reflectionFailed = true;
                 return;
             }

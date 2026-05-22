@@ -40,10 +40,6 @@ public class TooltipHandler {
             SummarizationDisabler.apply(tooltip);
         }
 
-        if (Config.COMPACT_GEM_DISPLAY.get()) {
-            GemDisplayCompactor.apply(stack, tooltip);
-        }
-
         if (Config.CLEAN_AFFIX_PREFIXES.get()) {
             PrefixCleaner.apply(tooltip);
         }
@@ -61,9 +57,7 @@ public class TooltipHandler {
             PotionDescriptionToggle.apply(stack, tooltip);
         }
 
-        if (Config.SHIFT_TO_EXPAND.get()) {
-            ShiftExpandHandler.apply(tooltip);
-        }
+        AltExpandHandler.apply(tooltip);
 
         if (Config.HIDE_DURABILITY_BONUS.get()) {
             DurabilityHider.apply(tooltip);
