@@ -24,7 +24,7 @@ import java.util.List;
 // When 2+ sockets are empty: all-empty becomes a single text summary; mixed rebuilds the
 // SocketComponent with only the filled gems and inserts the summary line right after it.
 // Filled gem icons are preserved either way.
-@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT)
 public final class SocketCompactor {
     private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.client.SocketTooltipRenderer$SocketComponent";
 

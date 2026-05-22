@@ -16,7 +16,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.List;
 
-@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT)
 public class TooltipHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

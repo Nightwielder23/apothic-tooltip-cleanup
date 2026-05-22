@@ -124,6 +124,7 @@ configurations {
 dependencies {
     // Apotheosis is a soft dependency. Compile against its public classes only, not forced at runtime.
     compileOnly "dev.shadowsoffire:Apotheosis:1.21.1-8.5.3"
+    compileOnly "dev.shadowsoffire:Placebo:1.21.1-9.9.1"
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
