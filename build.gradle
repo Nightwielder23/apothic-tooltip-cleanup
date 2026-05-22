@@ -28,6 +28,10 @@ sourceSets.main.resources {
 
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
+    maven {
+        name = 'Shadow'
+        url = 'https://maven.shadowsoffire.dev/releases'
+    }
 }
 
 base {
@@ -118,6 +122,9 @@ configurations {
 }
 
 dependencies {
+    // Apotheosis is a soft dependency. Compile against its public classes only, not forced at runtime.
+    compileOnly "dev.shadowsoffire:Apotheosis:1.21.1-8.5.3"
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
@@ -148,11 +155,14 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
             loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
             mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
     ]
     inputs.properties replaceProperties
     expand replaceProperties
