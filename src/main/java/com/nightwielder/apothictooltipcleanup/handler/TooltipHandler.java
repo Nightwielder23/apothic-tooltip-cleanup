@@ -70,6 +70,10 @@ public class TooltipHandler {
             }
         }
 
+        if (Config.HIDE_AFFIX_COOLDOWNS.get()) {
+            AffixCooldownHider.apply(tooltip);
+        }
+
         if (Config.HIDE_APOTH_MARKER.get()) {
             MarkerCleaner.apply(tooltip);
         }

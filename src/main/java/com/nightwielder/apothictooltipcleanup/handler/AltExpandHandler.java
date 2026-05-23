@@ -26,12 +26,17 @@ public final class AltExpandHandler {
         int affixesKept = 0;
         int liveIndex = 0;
         int insertIndex = -1;
-        int affixesRemoved = 0;
+        // True if this handler removed any line. The prompt must appear whenever Alt would reveal
+        // something, including the case where only the durability bonus was stripped and no
+        // affixes were truncated.
+        boolean anythingHidden = false;
         Iterator<Component> it = tooltip.iterator();
         while (it.hasNext()) {
             Component line = it.next();
             if (DurabilityHider.isDurableLine(line)) {
+                if (insertIndex < 0) insertIndex = liveIndex;
                 it.remove();
+                anythingHidden = true;
                 continue;
             }
             if (TooltipMatcher.isAffixLine(line)) {
@@ -41,14 +46,14 @@ public final class AltExpandHandler {
                 } else {
                     if (insertIndex < 0) insertIndex = liveIndex;
                     it.remove();
-                    affixesRemoved++;
+                    anythingHidden = true;
                 }
             } else {
                 liveIndex++;
             }
         }
 
-        if (affixesRemoved == 0) return;
+        if (!anythingHidden) return;
 
         Component prompt = Component.literal("Hold Alt for full details").withStyle(ChatFormatting.DARK_GRAY);
         if (insertIndex >= 0 && insertIndex <= tooltip.size()) {
