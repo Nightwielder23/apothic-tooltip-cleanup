@@ -20,6 +20,7 @@ public class Config {
     public static final ModConfigSpec.BooleanValue DISABLE_SUMMARIZATION;
     public static final ModConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
     public static final ModConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
+    public static final ModConfigSpec.BooleanValue HIDE_AFFIX_COOLDOWNS;
 
     // Gem display (raw gems)
     public static final ModConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
@@ -77,6 +78,9 @@ public class Config {
 
         builder.comment(" Hides potion-style affix descriptions.");
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
+
+        builder.comment(" Strips the [⌛ MM:SS] cooldown marker from affix lines.");
+        HIDE_AFFIX_COOLDOWNS = builder.define("hide_affix_cooldowns", false);
 
         builder.comment(" gem display (raw gems)",
                 " ============================================================",
