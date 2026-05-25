@@ -38,7 +38,10 @@ public final class FitsInRemover {
 
     public static void apply(List<Component> tooltip) {
         String mode = Config.GEM_TOOLTIP_MODE.get();
-        if ("full".equalsIgnoreCase(mode)) return;
+        if ("full".equalsIgnoreCase(mode)) {
+            applyFullCategoryFilter(tooltip);
+            return;
+        }
 
         boolean hidden = "hidden".equalsIgnoreCase(mode);
         boolean compact = "compact".equalsIgnoreCase(mode);
@@ -71,7 +74,7 @@ public final class FitsInRemover {
 
             if (isFits) {
                 if (ultra) {
-                    List<String> names = sortByGroup(extractCategoryNames(tooltip, i + 1, afterBullets));
+                    List<String> names = sortByGroup(filterHidden(extractCategoryNames(tooltip, i + 1, afterBullets)));
                     removeRange(tooltip, i, afterBullets);
                     if (!names.isEmpty()) {
                         tooltip.add(i, joinedCategoryBullet(String.join(", ", names)));
@@ -79,9 +82,37 @@ public final class FitsInRemover {
                     }
                     continue;
                 }
-                // compact: replace the header with a plain teal "Fits in:" line, leave category bullets below.
+                // compact: replace the header with a plain teal "Fits in:" line, then drop any
+                // hidden categories from the bullets below it.
                 tooltip.set(i, fitsInHeaderBullet());
+                int headerIndex = i;
                 i++;
+                int bulletIndex = i;
+                while (bulletIndex < afterBullets
+                        && TooltipMatcher.keyStartsWith(tooltip.get(bulletIndex), "text.apotheosis.dot_prefix")) {
+                    String inner = extractBulletText(tooltip.get(bulletIndex));
+                    if (inner == null || inner.isEmpty()) {
+                        bulletIndex++;
+                        continue;
+                    }
+                    List<String> names = splitCategories(inner);
+                    List<String> kept = filterHidden(names);
+                    if (kept.size() == names.size()) {
+                        bulletIndex++;
+                    } else if (kept.isEmpty()) {
+                        tooltip.remove(bulletIndex);
+                        afterBullets--;
+                    } else {
+                        tooltip.set(bulletIndex, categoryBullet(String.join(", ", kept)));
+                        bulletIndex++;
+                    }
+                }
+                // Every category bullet filtered out leaves the header with nothing below it; drop it.
+                if (headerIndex + 1 >= tooltip.size()
+                        || !TooltipMatcher.keyStartsWith(tooltip.get(headerIndex + 1), "text.apotheosis.dot_prefix")) {
+                    tooltip.remove(headerIndex);
+                    i--;
+                }
                 continue;
             }
 
@@ -116,6 +147,59 @@ public final class FitsInRemover {
         }
 
         cleanupOrphanBlanks(tooltip);
+    }
+
+    // Full mode preserves Apoth's native gem layout, so we only filter the Fits In category list
+    // and leave everything else (header text, bonus block, blank lines) untouched.
+    private static void applyFullCategoryFilter(List<Component> tooltip) {
+        List<? extends String> hiddenCategories = Config.HIDDEN_GEM_CATEGORIES.get();
+        if (hiddenCategories == null || hiddenCategories.isEmpty()) return;
+
+        int i = 0;
+        while (i < tooltip.size()) {
+            String key = TooltipMatcher.getKey(tooltip.get(i));
+            boolean isFits = key != null
+                    && (key.startsWith("text.apotheosis.socketable_into") || key.startsWith("text.apotheosis.fits_in"));
+            if (!isFits) {
+                i++;
+                continue;
+            }
+
+            int headerIndex = i;
+            int bulletIndex = i + 1;
+            int afterBullets = bulletIndex;
+            while (afterBullets < tooltip.size()
+                    && TooltipMatcher.keyStartsWith(tooltip.get(afterBullets), "text.apotheosis.dot_prefix")) {
+                afterBullets++;
+            }
+
+            while (bulletIndex < afterBullets) {
+                String inner = extractBulletText(tooltip.get(bulletIndex));
+                if (inner == null || inner.isEmpty()) {
+                    bulletIndex++;
+                    continue;
+                }
+                List<String> names = splitCategories(inner);
+                List<String> kept = filterHidden(names);
+                if (kept.size() == names.size()) {
+                    bulletIndex++;
+                } else if (kept.isEmpty()) {
+                    tooltip.remove(bulletIndex);
+                    afterBullets--;
+                } else {
+                    tooltip.set(bulletIndex, categoryBullet(String.join(", ", kept)));
+                    bulletIndex++;
+                }
+            }
+
+            if (headerIndex + 1 >= tooltip.size()
+                    || !TooltipMatcher.keyStartsWith(tooltip.get(headerIndex + 1), "text.apotheosis.dot_prefix")) {
+                tooltip.remove(headerIndex);
+                i = headerIndex;
+            } else {
+                i = afterBullets;
+            }
+        }
     }
 
     private static Component joinedCategoryBullet(String text) {
@@ -176,12 +260,40 @@ public final class FitsInRemover {
         for (int k = from; k < toExclusive; k++) {
             String inner = extractBulletText(tooltip.get(k));
             if (inner == null || inner.isEmpty()) continue;
-            for (String part : inner.split(",")) {
-                String trimmed = part.trim();
-                if (!trimmed.isEmpty()) names.add(trimmed);
-            }
+            names.addAll(splitCategories(inner));
         }
         return names;
+    }
+
+    // Splits a category bullet's inner text ("Swords, Bows, ...") into trimmed, non-empty names.
+    private static List<String> splitCategories(String inner) {
+        List<String> names = new ArrayList<>();
+        for (String part : inner.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) names.add(trimmed);
+        }
+        return names;
+    }
+
+    // Drops any category names listed in the hidden_gem_categories config, case-insensitively.
+    private static List<String> filterHidden(List<String> categories) {
+        List<? extends String> hidden = Config.HIDDEN_GEM_CATEGORIES.get();
+        if (hidden == null || hidden.isEmpty()) return categories;
+        Set<String> hiddenSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        hiddenSet.addAll(hidden);
+        List<String> filtered = new ArrayList<>(categories.size());
+        for (String name : categories) {
+            if (!hiddenSet.contains(name)) filtered.add(name);
+        }
+        return filtered;
+    }
+
+    // Rebuilds a Fits-In category bullet after hidden categories are dropped, preserving the teal
+    // styling Apoth uses natively. Used by compact mode (after the synthesized header) and full mode
+    // (under Apoth's original header).
+    private static Component categoryBullet(String text) {
+        return Component.translatable("text.apotheosis.dot_prefix", Component.literal(text))
+                .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
 
     private static void stripUnique(List<Component> tooltip) {

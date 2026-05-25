@@ -27,6 +27,7 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
     public static final ModConfigSpec.BooleanValue COMPACT_GEM_DISPLAY;
     public static final ModConfigSpec.BooleanValue HIDE_FITS_IN;
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> HIDDEN_GEM_CATEGORIES;
 
     // Sockets
     public static final ModConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
@@ -43,7 +44,7 @@ public class Config {
 
     // ===== Server spec =====
     // Anvil
-    public static final ModConfigSpec.BooleanValue STRIP_AFFIX_NAME_ON_RENAME;
+    public static final ModConfigSpec.BooleanValue OVERRIDE_AFFIX_NAME_ON_RENAME;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -102,6 +103,9 @@ public class Config {
         builder.comment(" Deprecated, use gem_tooltip_mode instead.");
         HIDE_FITS_IN = builder.define("hide_fits_in", false);
 
+        builder.comment(" Case-insensitive list of gem categories to hide from Fits In tooltips.");
+        HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", List.of(), () -> "", o -> o instanceof String);
+
         builder.comment(" sockets",
                 " ============================================================",
                 " Merges empty sockets into one summary line.",
@@ -145,9 +149,9 @@ public class Config {
 
         serverBuilder.push("anvil");
 
-        serverBuilder.comment(" Anvil renames remove Apotheosis prefix/suffix decoration.",
+        serverBuilder.comment(" Anvil renames override Apotheosis prefix/suffix decoration.",
                 " Affixes, sockets, and rarity color stay intact. Server-side.");
-        STRIP_AFFIX_NAME_ON_RENAME = serverBuilder.define("strip_affix_name_on_rename", false);
+        OVERRIDE_AFFIX_NAME_ON_RENAME = serverBuilder.define("override_affix_name_on_rename", false);
 
         serverBuilder.pop();
 

@@ -22,7 +22,7 @@ public final class AnvilRenameOverride {
 
     @SubscribeEvent
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
-        if (!Config.STRIP_AFFIX_NAME_ON_RENAME.get()) return;
+        if (!Config.OVERRIDE_AFFIX_NAME_ON_RENAME.get()) return;
         if (!ApotheosisDetector.isApotheosisLoaded()) return;
 
         ItemStack left = event.getLeft();
@@ -35,7 +35,7 @@ public final class AnvilRenameOverride {
         ItemStack output = left.copy();
         output.set(DataComponents.CUSTOM_NAME, Component.literal(name));
 
-        Style wrapperStyle = Style.EMPTY.withItalic(false);
+        Style wrapperStyle = Style.EMPTY;
         DynamicHolder<LootRarity> rarity = AffixHelper.getRarity(output);
         if (rarity.isBound()) {
             wrapperStyle = wrapperStyle.withColor(rarity.get().color());
