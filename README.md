@@ -74,6 +74,8 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `override_affix_name_on_rename` replaces Apotheosis's affix-decorated name with the user's typed name when renaming an affixed item in an anvil. Off by default for backward compatibility with client-only installs.
 
+Reforging an affixed item regenerates Apotheosis's name template, so reforged items need to be renamed again in an anvil to suppress the decoration.
+
 This setting is in `apothic_tooltip_cleanup-common.toml`. The mod must be installed on the server (or be running through the integrated server in singleplayer) for the feature to take effect. Combined anvil operations (rename plus enchant book, rename plus repair material) fall through to vanilla; only pure rename operations are intercepted.
 
 ## compatibility

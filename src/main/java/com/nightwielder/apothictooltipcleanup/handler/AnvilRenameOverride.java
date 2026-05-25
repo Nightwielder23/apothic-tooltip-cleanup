@@ -3,6 +3,7 @@ package com.nightwielder.apothictooltipcleanup.handler;
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
 import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.ApotheosisDetector;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
@@ -10,9 +11,19 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-// AnvilUpdateEvent fires whenever the player edits the anvil inputs. Apotheosis decorates an
-// affixed item's name dynamically from affix_data NBT every render, so the user's custom name
-// gets visually buried under the prefix/suffix unless we replace the output's display.Name.
+// Apotheosis 7.4.x mixes into ItemStack.getHoverName() at RETURN (ItemStackMixin.apoth_affixItemName,
+// cancellable). If the stack has affix_data.name set, the mixin wraps the returned Component into
+// the affix prefix/suffix template, overriding any display.Name we set. setHoverName alone is not
+// enough to suppress the wrap.
+//
+// To suppress wrapping without breaking affixes, rarity, or sockets, we clear just the
+// affix_data.name NBT key. Apoth's own mixin self-heals to this same operation when it encounters
+// bad data (the catch block on the wrap path calls tag.remove("name")), so this is the canonical
+// "stop wrapping" signal on 1.20.1.
+//
+// Caveat: Apoth regenerates affix_data.name via AffixHelper.setName on reforge and regeneration
+// events. After a reforge the wrap returns until the player anvil-renames again.
+//
 // LOWEST priority lets vanilla and any other anvil mod (Apoth itself, repair mods, etc) settle
 // first so we sit on top of whatever output they computed and stamp the custom name onto it
 // without touching the cost or material cost they decided.
@@ -39,16 +50,15 @@ public final class AnvilRenameOverride {
         // Only intervene on affixed items. Anything else falls through to vanilla / Apoth.
         if (!left.hasTag() || !left.getTag().contains("affix_data")) return;
 
-        // AnvilUpdateEvent also fires on initial open with event.getName() equal to the item's
-        // current display name. Comparing the typed name against left.getHoverName() doesn't work
-        // server-side: Apoth decorates the name via ItemTooltipEvent at render time, so the
-        // server-visible hover name is the plain vanilla name and never matches the decorated
-        // string the user actually sees and re-types.
+        // AnvilUpdateEvent fires on every contents change, including the initial open with
+        // event.getName() pre-filled to match the current display name. Naive name-comparison
+        // guards are fragile because Apoth's getHoverName mixin runs server-side too, so what
+        // counts as "the current name" depends on Apoth's wrap state at the time of comparison.
+        //
         // Cost is the reliable signal. Vanilla's anvil sets cost=0 when the operation is a no-op
-        // (same name as current display, no material consumed). With the right slot already
-        // confirmed empty above, cost=0 means vanilla considers nothing meaningful to be
-        // happening, so writing display.Name now would freeze Apoth's dynamic decoration as a
-        // literal string and break future name refreshes (reforging, augmenting).
+        // (same name, no material consumed). With the right slot already confirmed empty above,
+        // cost=0 means vanilla considers nothing meaningful to be happening, so intervening now
+        // would be wasted work and could mis-fire on initial open.
         if (event.getCost() == 0) return;
 
         // Vanilla / Apoth already computed an output (with cost and material cost). Copy it,
@@ -59,6 +69,14 @@ public final class AnvilRenameOverride {
         ItemStack currentOutput = event.getOutput();
         if (currentOutput.isEmpty()) return;
         ItemStack newOutput = currentOutput.copy();
+        // Clear the wrap-template NBT so Apoth's getHoverName mixin's gate check
+        // (affixData.contains("name", TAG_STRING)) fails and the wrap path is skipped. The vanilla
+        // hover name (now display.Name) flows through unwrapped; the post-skip rarity coloring
+        // branch still runs so the renamed item keeps its tint.
+        CompoundTag outputAffixData = newOutput.getTagElement("affix_data");
+        if (outputAffixData != null) {
+            outputAffixData.remove("name");
+        }
         newOutput.setHoverName(Component.literal(name));
         event.setOutput(newOutput);
     }
