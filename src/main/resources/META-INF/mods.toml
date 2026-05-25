@@ -10,7 +10,7 @@ displayName="Apothic Tooltip Cleanup"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/apothic-tooltip-cleanup"
 authors="Nightwielder23"
 description='''
-Client-side tooltip cleanup for Apotheosis affix items. Hide the Fits In section, sort affixes, hide specific affix IDs, collapse empty sockets, toggle Apotheosis summarization, and more. All features off by default, opt-in via config.
+Tooltip cleanup for Apotheosis affix items. Hide the Fits In section, sort affixes, hide specific affix IDs, collapse empty sockets, toggle Apotheosis summarization, and more. All features off by default, opt-in via config.
 '''
 
 [[dependencies.apothic_tooltip_cleanup]]
