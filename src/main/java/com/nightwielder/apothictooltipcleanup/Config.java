@@ -24,8 +24,6 @@ public class Config {
 
     // Gem display (raw gems)
     public static final ModConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
-    public static final ModConfigSpec.BooleanValue COMPACT_GEM_DISPLAY;
-    public static final ModConfigSpec.BooleanValue HIDE_FITS_IN;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> HIDDEN_GEM_CATEGORIES;
 
     // Sockets
@@ -93,13 +91,8 @@ public class Config {
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
 
-        builder.comment(" Legacy, superseded by gem_tooltip_mode.");
-        COMPACT_GEM_DISPLAY = builder.define("compact_gem_display", false);
-
-        builder.comment(" Deprecated, use gem_tooltip_mode instead.");
-        HIDE_FITS_IN = builder.define("hide_fits_in", false);
-
-        builder.comment(" Case-insensitive list of gem categories to hide from Fits In tooltips.");
+        builder.comment(" Case-insensitive list of gem categories to hide from Fits In tooltips.",
+                " Works in all gem_tooltip_mode values including full.");
         HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", List.of(), () -> "", o -> o instanceof String);
 
         builder.comment(" sockets",
@@ -109,7 +102,7 @@ public class Config {
                 " Mixed: filled gems still render, empty count appended below.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
 
-        builder.comment(" Hides the APOTH_REMOVE_MARKER literal text.",
+        builder.comment(" Hides the APOTH_SOCKET_MARKER literal text.",
                 " Only enable if the marker is leaking through visibly.",
                 " Can hide the socket UI on socketed items if enabled.");
         HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);

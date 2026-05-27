@@ -10,7 +10,7 @@ import java.util.List;
 public final class AffixSorter {
     private AffixSorter() {}
 
-    // TODO: multi-line affixes are treated as single rows in v1.0. Single-line is the common case in 1.20.1.
+    // TODO: multi-line affixes are treated as single rows in v1.0. Single-line is the common case.
     public static void apply(List<Component> tooltip, String sortOrder) {
         if (sortOrder == null || "default".equals(sortOrder)) return;
 

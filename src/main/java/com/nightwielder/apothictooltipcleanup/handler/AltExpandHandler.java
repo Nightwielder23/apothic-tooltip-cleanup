@@ -26,6 +26,9 @@ public final class AltExpandHandler {
         int affixesKept = 0;
         int liveIndex = 0;
         int insertIndex = -1;
+        // True if this handler removed any line. The prompt must appear whenever Alt would reveal
+        // something, including the case where only the durability bonus was stripped and no
+        // affixes were truncated.
         boolean anythingHidden = false;
 
         Iterator<Component> it = tooltip.iterator();
