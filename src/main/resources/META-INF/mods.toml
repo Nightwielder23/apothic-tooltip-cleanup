@@ -18,25 +18,25 @@ Tooltip cleanup for Apotheosis affix items. Hide the Fits In section, sort affix
     mandatory=true
     versionRange="[47.2.0,)"
     ordering="NONE"
-    side="BOTH"
+    side="CLIENT"
 
 [[dependencies.apothic_tooltip_cleanup]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20.1,1.21)"
     ordering="NONE"
-    side="BOTH"
+    side="CLIENT"
 
 [[dependencies.apothic_tooltip_cleanup]]
     modId="apotheosis"
     mandatory=false
     versionRange="[7.4.0,)"
     ordering="AFTER"
-    side="BOTH"
+    side="CLIENT"
 
 [[dependencies.apothic_tooltip_cleanup]]
     modId="apothic_attributes"
     mandatory=false
     versionRange="[2.0.0,)"
     ordering="AFTER"
-    side="BOTH"
+    side="CLIENT"

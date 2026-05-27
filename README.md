@@ -1,6 +1,6 @@
 # Apothic Tooltip Cleanup
 
-A Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and Apothic Attributes out of the box. Everything is configurable, every feature can be turned off. Most of the mod is client-side; the optional anvil rename override needs the mod installed on the server too.
+A Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and Apothic Attributes out of the box. Everything is configurable, every feature can be turned off.
 
 ## features
 
@@ -11,20 +11,16 @@ A Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheosis adds to 
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
 - Hide the affix source line.
-- Hide the `[⌛ MM:SS]` cooldown markers on affix lines without touching the affix text.
+- Hide the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines without touching the affix text. Hold Alt to reveal.
 - Custom rarity color overrides for all six tiers (Common, Uncommon, Rare, Epic, Mythic, Ancient). Esoteric (Apotheotic Additions) maps to Ancient via namespace fallback.
 - Strip prefixes from affix names.
 - Sort affix lines by rarity, alphabetical, type, or default.
 - Hide individual affixes by translation key prefix.
 - Hide potion-style affix descriptions.
-- Replace Apotheosis's affix-decorated name with the user's typed name when renaming an affixed item in an anvil.
 
 ## configuration
 
-Settings split across two files. Both regenerate from defaults if deleted.
-
-- `config/apothic_tooltip_cleanup-client.toml` holds every tooltip-render toggle (all the client-side features).
-- `config/apothic_tooltip_cleanup-common.toml` holds the anvil rename override. On a dedicated server this file is in `world/serverconfig/`.
+Settings live in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
 
 ## config reference
 
@@ -52,7 +48,7 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `disable_potion_descriptions` hides potion-style affix descriptions.
 
-`hide_affix_cooldowns` hides the `[⌛ MM:SS]` cooldown markers on affix lines. The affix text itself stays intact; only the bracketed cooldown annotation is stripped.
+`hide_affix_extras` hides the `[⌛ MM:SS]` cooldown markers and `[Stacking]` modifier tags on affix lines. The affix text itself stays intact; only the bracketed annotations are stripped. Holding Alt while the item is hovered reveals the full line including the hidden markers.
 
 ### gem display
 
@@ -70,21 +66,12 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `rarity_colors_enabled` toggles custom rarity colors. When off (default), vanilla Apotheosis colors are used. The six color values use hex format `0xRRGGBB`. Apotheotic Additions's "Esoteric" rarity falls back to the Ancient color via namespace mapping.
 
-### rename override
-
-`override_affix_name_on_rename` replaces Apotheosis's affix-decorated name with the user's typed name when renaming an affixed item in an anvil. Off by default for backward compatibility with client-only installs.
-
-Reforging an affixed item regenerates Apotheosis's name template, so reforged items need to be renamed again in an anvil to suppress the decoration.
-
-This setting is in `apothic_tooltip_cleanup-common.toml`. The mod must be installed on the server (or be running through the integrated server in singleplayer) for the feature to take effect. Combined anvil operations (rename plus enchant book, rename plus repair material) fall through to vanilla; only pure rename operations are intercepted.
-
 ## compatibility
 
 - Apotheosis (soft dependency, the mod does nothing without it)
 - Apotheotic Additions (optional, supported)
 - Apothic Attributes (optional, supported)
 - Fallen Gems & Affixes (tested compatible)
-- Dual-sided. The tooltip-render features are client-side and work on vanilla or unmodded servers. The anvil rename override needs the mod installed on the server as well.
 - May not visually compact empty sockets on packs that ASM-patch Apotheosis's socket renderer beyond what was tested.
 
 ## license

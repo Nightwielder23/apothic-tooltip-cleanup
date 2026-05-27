@@ -10,8 +10,7 @@ public class ApothicTooltipCleanup {
     public static final String MODID = "apothic_tooltip_cleanup";
 
     public ApothicTooltipCleanup() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
     }
 }
