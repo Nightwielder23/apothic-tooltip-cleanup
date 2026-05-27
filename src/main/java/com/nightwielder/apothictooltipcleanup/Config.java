@@ -86,7 +86,7 @@ public class Config {
         builder.comment(" Hides the [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
                 " Strips just the annotations, the affix text remains unchanged.",
                 " Hold Alt to view the full line including markers.");
-        HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", false);
+        HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", true);
 
         builder.comment(" gem display (raw gems)",
                 " ============================================================",
