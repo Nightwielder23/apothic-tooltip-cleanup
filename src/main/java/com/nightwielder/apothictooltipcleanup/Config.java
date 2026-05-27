@@ -80,7 +80,7 @@ public class Config {
 
         builder.comment(" Hides bracketed markers from affix lines (cooldown and Stacking tag).",
                 " Hold Alt to view the full line including markers.");
-        HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", false);
+        HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", true);
 
         builder.comment(" gem display (raw gems)",
                 " ============================================================",
