@@ -4,18 +4,22 @@ import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
+// Apoth 7.x attaches the [⌛ MM:SS] cooldown marker (affix.apotheosis.cooldown) and the
+// [Stacking] tag (affix.apotheosis.stacking) as siblings of the bullet's arg[0] component, not
+// as inline text inside arg[0]. A regex over arg[0].getString() never sees them and silently
+// no-ops. We match siblings by translation key and remove them directly. Translation-key
+// matching is locale-agnostic, and the parenthesized in-prose duration like "(00:10)" survives
+// automatically: it lives inside arg[0]'s arg[0] (the affix description) rather than as a
+// sibling, so the sibling pass cannot touch it. The codepoint pre-filter on rendered text is
+// the only English-only piece; it only gates extra work, not correctness.
 public final class AffixMarkerStripper {
-    // Allowlist for the two trailing markers Apoth 7.x emits on affix lines:
-    // [⌛ MM:SS] from affix.apotheosis.cooldown and [Stacking] from affix.apotheosis.stacking.
-    // A broad [CapitalizedWord] regex would also eat in-prose brackets that affixes like
-    // Stoneforming render ([Stone], [Cobblestone]) which are gameplay-critical, so the pattern is
-    // pinned to the two known formats.
-    private static final Pattern MARKER_PATTERN = Pattern.compile("\\s*\\[(?:⌛\\s*\\d+:\\d+|Stacking)\\]");
+    private static final String COOLDOWN_KEY = "affix.apotheosis.cooldown";
+    private static final String STACKING_KEY = "affix.apotheosis.stacking";
 
     private AffixMarkerStripper() {}
 
@@ -23,48 +27,32 @@ public final class AffixMarkerStripper {
         if (!Config.HIDE_AFFIX_EXTRAS.get()) return;
         // Holding Alt reveals the unstripped line, matching AltExpandHandler's reveal-on-hold UX.
         if (Screen.hasAltDown()) return;
-        for (int i = 0; i < tooltip.size(); i++) {
-            Component line = tooltip.get(i);
+        for (Component line : tooltip) {
             if (!TooltipMatcher.isBulletPrefix(line)) continue;
-            // Cheap codepoint pre-filter: skip lines with neither the hourglass nor "[Stacking]"
-            // before paying for extractBulletText + regex on every bullet.
             String text = line.getString();
             if (text.indexOf('⌛') < 0 && !text.contains("[Stacking]")) continue;
-            String inner = extractBulletText(line);
-            if (inner == null || inner.isEmpty()) continue;
-            if (!MARKER_PATTERN.matcher(inner).find()) continue;
-            String cleaned = stripMarkers(inner);
-            if (cleaned.isEmpty()) continue;
-            tooltip.set(i, rebuildBullet(line, cleaned));
+            if (!(line.getContents() instanceof TranslatableContents tc)) continue;
+            Object[] args = tc.getArgs();
+            if (args.length == 0 || !(args[0] instanceof Component inner)) continue;
+            stripMarkerSiblings(inner.getSiblings());
         }
     }
 
-    // The bullet's payload is the rendered string of arg[0] on the TranslatableContents, matching
-    // how FitsInRemover.extractBulletText reads it.
-    private static String extractBulletText(Component bullet) {
-        if (!(bullet.getContents() instanceof TranslatableContents tc)) return null;
-        Object[] args = tc.getArgs();
-        if (args.length == 0) return null;
-        Object arg = args[0];
-        if (arg instanceof Component c) return c.getString();
-        return String.valueOf(arg);
+    // Reverse walk so removals don't invalidate later indices. When a marker sibling is removed
+    // we also drop the preceding " " separator so the bullet doesn't render with a trailing space.
+    private static void stripMarkerSiblings(List<Component> siblings) {
+        for (int i = siblings.size() - 1; i >= 0; i--) {
+            String key = TooltipMatcher.getKey(siblings.get(i));
+            if (!COOLDOWN_KEY.equals(key) && !STACKING_KEY.equals(key)) continue;
+            siblings.remove(i);
+            if (i > 0 && isLiteralSpace(siblings.get(i - 1))) {
+                siblings.remove(i - 1);
+                i--;
+            }
+        }
     }
 
-    // The regex's leading \\s* swallows a separating space when the marker is mid-line; we put one
-    // back via replacement, then trim and collapse double spaces so leading/trailing matches don't
-    // leave gaps. replaceAll handles multiple markers on the same line.
-    private static String stripMarkers(String text) {
-        String replaced = MARKER_PATTERN.matcher(text).replaceAll(" ");
-        return replaced.trim().replaceAll("\\s{2,}", " ");
-    }
-
-    // Preserve the bullet's original prefix key (dot_prefix vs star_prefix) and top-level style so
-    // the line keeps whatever color/formatting Apotheosis applied. The inner Component is rebuilt
-    // as a plain literal carrying the cleaned text; that loses any inner color but matches how the
-    // FitsInRemover compact rebuild handles bullet content.
-    private static Component rebuildBullet(Component original, String cleanedText) {
-        String key = TooltipMatcher.getKey(original);
-        if (key == null) key = "text.apotheosis.dot_prefix";
-        return Component.translatable(key, Component.literal(cleanedText)).withStyle(original.getStyle());
+    private static boolean isLiteralSpace(Component component) {
+        return component.getContents() instanceof LiteralContents lc && " ".equals(lc.text());
     }
 }
