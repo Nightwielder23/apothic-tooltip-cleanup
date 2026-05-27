@@ -20,6 +20,16 @@ public final class AltExpandHandler {
         if ("all".equalsIgnoreCase(mode)) return;
         if (Screen.hasAltDown()) return;
 
+        // Apoth 7.x renders "Fits in:" as a literal Component without a translation key, so we
+        // detect gem tooltips by exact text match instead. gem Fits In bullets use the same
+        // dot_prefix key as affix bullets, so without this bail the truncation budget would eat
+        // gem categories on multi-category gems.
+        for (Component line : tooltip) {
+            if ("Fits in:".equals(line.getString())) {
+                return;
+            }
+        }
+
         boolean altOnly = "alt_only".equalsIgnoreCase(mode);
         int visibleCount = altOnly ? 0 : Math.max(0, Config.AFFIX_VISIBLE_COUNT.get());
 
