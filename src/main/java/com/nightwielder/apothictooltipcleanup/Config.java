@@ -7,7 +7,6 @@ import java.util.List;
 
 public class Config {
     public static final ModConfigSpec SPEC;
-    public static final ModConfigSpec SERVER_SPEC;
 
     // Affix display
     public static final ModConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
@@ -41,10 +40,6 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<String> EPIC;
     public static final ModConfigSpec.ConfigValue<String> MYTHIC;
     public static final ModConfigSpec.ConfigValue<String> ANCIENT;
-
-    // ===== Server spec =====
-    // Anvil
-    public static final ModConfigSpec.BooleanValue OVERRIDE_AFFIX_NAME_ON_RENAME;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -140,22 +135,5 @@ public class Config {
         builder.pop();
 
         SPEC = builder.build();
-    }
-
-    static {
-        // Server-side spec. Loaded per-world under serverconfig/<world>/.
-        // Kept separate from the client spec so dedicated servers can drive the anvil handler
-        // without depending on a client config that never loads server-side.
-        ModConfigSpec.Builder serverBuilder = new ModConfigSpec.Builder();
-
-        serverBuilder.push("anvil");
-
-        serverBuilder.comment(" Anvil renames override Apotheosis prefix/suffix decoration.",
-                " Affixes, sockets, and rarity color stay intact. Server-side.");
-        OVERRIDE_AFFIX_NAME_ON_RENAME = serverBuilder.define("override_affix_name_on_rename", false);
-
-        serverBuilder.pop();
-
-        SERVER_SPEC = serverBuilder.build();
     }
 }

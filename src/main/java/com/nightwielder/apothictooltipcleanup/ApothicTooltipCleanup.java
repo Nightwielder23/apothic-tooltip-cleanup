@@ -11,6 +11,5 @@ public class ApothicTooltipCleanup {
 
     public ApothicTooltipCleanup(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
-        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SERVER_SPEC);
     }
 }
