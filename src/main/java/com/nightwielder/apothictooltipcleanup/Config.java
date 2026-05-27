@@ -98,7 +98,7 @@ public class Config {
 
         builder.comment(" Category names to hide from gem 'Fits In' lists.",
                 " Example: [\"Bows\", \"Crossbows\"] to hide ranged weapons.",
-                " Case-insensitive. Has no effect when gem_tooltip_mode is full or hidden.");
+                " Case-insensitive. Has no effect when gem_tooltip_mode is hidden (all gem info is removed in that mode anyway).");
         HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", Collections.emptyList(), o -> o instanceof String);
 
         builder.comment(" sockets",

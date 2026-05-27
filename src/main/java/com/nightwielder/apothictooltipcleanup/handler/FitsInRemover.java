@@ -38,7 +38,12 @@ public final class FitsInRemover {
 
     public static void apply(List<Component> tooltip) {
         String mode = Config.GEM_TOOLTIP_MODE.get();
-        if ("full".equalsIgnoreCase(mode)) return;
+        if ("full".equalsIgnoreCase(mode)) {
+            // Apotheosis renders the Fits-In section normally; we only prune category bullets
+            // whose names the user listed in hidden_gem_categories. No structural rewrite.
+            filterFullModeCategories(tooltip);
+            return;
+        }
 
         boolean hidden = "hidden".equalsIgnoreCase(mode);
         boolean compact = "compact".equalsIgnoreCase(mode);
@@ -223,6 +228,49 @@ public final class FitsInRemover {
             if (!trimmed.isEmpty()) names.add(trimmed);
         }
         return names;
+    }
+
+    // Full-mode pass: Apotheosis renders the Fits-In header followed by one category per bullet.
+    // We walk each Fits-In block and drop any bullet whose categories all appear in
+    // hidden_gem_categories. When every bullet under a header is dropped, the header goes too so
+    // we don't leave an orphan label. Bullet styling is left untouched.
+    private static void filterFullModeCategories(List<Component> tooltip) {
+        List<? extends String> hidden = Config.HIDDEN_GEM_CATEGORIES.get();
+        if (hidden == null || hidden.isEmpty()) return;
+
+        int i = 0;
+        while (i < tooltip.size()) {
+            String key = TooltipMatcher.getKey(tooltip.get(i));
+            boolean isFits = key != null
+                    && (key.startsWith("text.apotheosis.socketable_into") || key.startsWith("text.apotheosis.fits_in"));
+            if (!isFits) {
+                i++;
+                continue;
+            }
+
+            int bulletStart = i + 1;
+            int bulletIndex = bulletStart;
+            while (bulletIndex < tooltip.size() && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
+                String inner = extractBulletText(tooltip.get(bulletIndex));
+                if (inner == null || inner.isEmpty()) {
+                    bulletIndex++;
+                    continue;
+                }
+                List<String> names = splitCategories(inner);
+                List<String> kept = filterHidden(names);
+                if (kept.isEmpty()) {
+                    tooltip.remove(bulletIndex);
+                } else {
+                    bulletIndex++;
+                }
+            }
+
+            if (bulletStart >= tooltip.size() || !TooltipMatcher.isBulletPrefix(tooltip.get(bulletStart))) {
+                tooltip.remove(i);
+                continue;
+            }
+            i = bulletIndex;
+        }
     }
 
     private static void stripUnique(List<Component> tooltip) {

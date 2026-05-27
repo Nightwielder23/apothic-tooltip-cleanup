@@ -54,7 +54,7 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips headers and the Unique tag, keeps the bullets, and removes "level to existing" wording. `ultra` puts categories on one line and bonuses on one line. `hidden` removes all gem info.
 
-`hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case-insensitive. Has no effect when `gem_tooltip_mode` is `full` or `hidden`. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
+`hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case-insensitive. Works in `full`, `compact`, and `ultra` modes; no effect when `gem_tooltip_mode` is `hidden` since that mode strips all gem info anyway. If every category is hidden, the "Fits In:" header is also dropped. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
 
 ### sockets
 
