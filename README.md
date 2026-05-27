@@ -68,7 +68,7 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 ## compatibility
 
-- Apotheosis (soft dependency, the mod does nothing without it)
+- Apotheosis 7.x (soft dependency, the mod does nothing without it)
 - Apotheotic Additions (optional, supported)
 - Apothic Attributes (optional, supported)
 - Fallen Gems & Affixes (tested compatible)
