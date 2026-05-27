@@ -1,16 +1,18 @@
 # Apothic Tooltip Cleanup
 
-A client-side NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and Apothic Attributes out of the box. Everything is configurable, every feature can be turned off.
+A NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and Apothic Attributes out of the box. Everything is configurable, every feature can be turned off.
 
 ## features
 
 - Truncate affix lists, hold Alt to expand. Configurable to show all, show top N (default 3), or hide all unless Alt is held.
 - Compact gem tooltips on raw gems. Configurable modes: full, compact, ultra, hidden.
+- Hide individual gem categories from "Fits In" lists, useful on packs that disable certain weapon types.
 - Merge empty sockets on socketed items into one summary line. Mixed sockets are supported: filled gems still render, with the empty count shown below.
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
 - Hide the affix source line.
-- Custom rarity color overrides for all five tiers (Common, Uncommon, Rare, Epic, Mythic) plus an Ancient fallback color used for unknown rarities such as Apotheotic Additions's Esoteric.
+- Hide the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines without touching the affix text. Hold Alt to reveal.
+- Custom rarity color overrides for the five built-in Apotheosis 8.x tiers (Common, Uncommon, Rare, Epic, Mythic), plus an Ancient color used as fallback for unknown rarities such as Apotheotic Additions's Esoteric.
 - Strip prefixes from affix names.
 - Sort affix lines by rarity, alphabetical, type, or default.
 - Hide individual affixes by translation key prefix.
@@ -18,13 +20,15 @@ A client-side NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apot
 
 ## configuration
 
-All toggles are in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
+Settings live in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
 
 ## config reference
 
 ### affix display
 
 `affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix, `top_n` shows the first N with Alt to expand the rest (default), `alt_only` hides every affix unless Alt is held.
+
+The "Hold Alt for full details" prompt also appears when other handlers hide content. With `hide_durability_bonus` enabled, the prompt shows on durable items even when no affixes were truncated; pressing Alt reveals the durability line.
 
 `affix_visible_count` is the N for `top_n` mode. Default 3.
 
@@ -44,23 +48,27 @@ All toggles are in `config/apothic_tooltip_cleanup-client.toml`. The file regene
 
 `disable_potion_descriptions` hides potion-style affix descriptions.
 
+`hide_affix_extras` hides the `[⌛ MM:SS]` cooldown markers and `[Stacking]` modifier tags on affix lines. The affix text itself stays intact; only the bracketed annotations are stripped. Holding Alt while the item is hovered reveals the full line including the hidden markers.
+
 ### gem display
 
 `gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips headers and the Unique tag, keeps the bullets, and removes "level to existing" wording. `ultra` puts categories on one line and bonuses on one line. `hidden` removes all gem info.
+
+`hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case-insensitive. Works in `full`, `compact`, and `ultra` modes; no effect when `gem_tooltip_mode` is `hidden` since that mode strips all gem info anyway. If every category is hidden, the "Fits In:" header is also dropped. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
 
 ### sockets
 
 `merge_empty_sockets` collapses empty sockets into one summary line. Filled gems still render normally; only the empty rows get merged. Default on.
 
-`hide_apoth_marker` hides the `APOTH_SOCKET_MARKER` literal if Apotheosis leaks it through. Don't enable this unless you actually see it, since it can hide the socket UI on socketed items.
+`hide_apoth_marker` hides the `APOTH_SOCKET_MARKER` literal if Apotheosis lets it leak through. Don't enable this unless you actually see it, since it can hide the socket UI on socketed items.
 
 ### rarity colors
 
-`rarity_colors_enabled` toggles custom rarity colors. When off (default), vanilla Apotheosis colors are used. The six color values use hex format `0xRRGGBB`. In Apotheosis 8.x, Ancient is no longer a built-in rarity tier, but the Ancient color still applies to unknown rarities such as Apotheotic Additions's Esoteric via namespace fallback.
+`rarity_colors_enabled` toggles custom rarity colors. When off (default), vanilla Apotheosis colors are used. The color values use hex format `0xRRGGBB`. Apotheosis 8.x has five built-in tiers (Common, Uncommon, Rare, Epic, Mythic); the Ancient color still applies as a fallback for unknown rarities such as Apotheotic Additions's Esoteric.
 
 ## compatibility
 
-- Apotheosis (soft dependency, the mod does nothing without it)
+- Apotheosis 8.x (soft dependency, the mod does nothing without it)
 - Apotheotic Additions (optional, supported)
 - Apothic Attributes (optional, supported)
 - Fallen Gems & Affixes (tested compatible)
