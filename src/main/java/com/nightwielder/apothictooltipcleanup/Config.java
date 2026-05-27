@@ -84,7 +84,8 @@ public class Config {
         DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
 
         builder.comment(" Hides the [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
-                " Strips just the annotations, the affix text remains unchanged.");
+                " Strips just the annotations, the affix text remains unchanged.",
+                " Hold Alt to view the full line including markers.");
         HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", false);
 
         builder.comment(" gem display (raw gems)",

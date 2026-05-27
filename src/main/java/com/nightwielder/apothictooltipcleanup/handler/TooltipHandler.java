@@ -57,6 +57,12 @@ public class TooltipHandler {
             PotionDescriptionToggle.apply(stack, tooltip);
         }
 
+        // Strip [⌛ MM:SS] / [Stacking] markers before AltExpandHandler so its truncation budget
+        // and "Hold Alt for full details" prompt operate on the same lines the user actually sees.
+        if (Config.HIDE_AFFIX_EXTRAS.get()) {
+            AffixMarkerStripper.apply(tooltip);
+        }
+
         AltExpandHandler.apply(tooltip);
 
         if (Config.HIDE_DURABILITY_BONUS.get()) {
@@ -68,10 +74,6 @@ public class TooltipHandler {
             if (hex != null) {
                 RarityColorOverride.apply(stack, tooltip, hex);
             }
-        }
-
-        if (Config.HIDE_AFFIX_EXTRAS.get()) {
-            AffixMarkerStripper.apply(tooltip);
         }
 
         if (Config.HIDE_APOTH_MARKER.get()) {
