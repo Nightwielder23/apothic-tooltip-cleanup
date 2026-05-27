@@ -20,6 +20,18 @@ public final class AltExpandHandler {
         if ("all".equalsIgnoreCase(mode)) return;
         if (Screen.hasAltDown()) return;
 
+        // Gem "Fits In" category bullets share text.apotheosis.dot_prefix with affix lines, so
+        // without this guard a gem with 4+ categories gets bullets truncated as if they were
+        // affixes. Apoth's full-mode header carries text.apotheosis.socketable_into (locale-
+        // agnostic); FitsInRemover's compact-mode header is a literal "Fits in:" (English).
+        for (Component line : tooltip) {
+            if (TooltipMatcher.keyStartsWith(line, "text.apotheosis.socketable_into")
+                    || TooltipMatcher.keyStartsWith(line, "text.apotheosis.fits_in")
+                    || "Fits in:".equals(line.getString())) {
+                return;
+            }
+        }
+
         boolean altOnly = "alt_only".equalsIgnoreCase(mode);
         int visibleCount = altOnly ? 0 : Math.max(0, Config.AFFIX_VISIBLE_COUNT.get());
 
