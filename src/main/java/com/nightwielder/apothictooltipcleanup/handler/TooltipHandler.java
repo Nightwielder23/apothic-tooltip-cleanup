@@ -63,8 +63,8 @@ public class TooltipHandler {
             PotionDescriptionToggle.apply(stack, tooltip);
         }
 
-        if (Config.HIDE_AFFIX_COOLDOWNS.get()) {
-            AffixCooldownStripper.apply(tooltip);
+        if (Config.HIDE_AFFIX_EXTRAS.get()) {
+            AffixMarkerStripper.apply(tooltip);
         }
 
         AltExpandHandler.apply(tooltip);
