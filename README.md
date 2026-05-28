@@ -10,7 +10,7 @@ A NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apotheosis adds 
 - Merge empty sockets on socketed items into one summary line. Mixed sockets are supported: filled gems still render, with the empty count shown below.
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
-- Hide the affix source line.
+- Always hide the affix source line (not configurable).
 - Hide the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines without touching the affix text. Hold Alt to reveal.
 - Custom rarity color overrides for the five built-in Apotheosis 8.x tiers (Common, Uncommon, Rare, Epic, Mythic), plus an Ancient color used as fallback for unknown rarities such as Apotheotic Additions's Esoteric.
 - Strip prefixes from affix names.
@@ -22,33 +22,35 @@ A NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apotheosis adds 
 
 Settings live in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
 
+Most hide features use a three-mode toggle: `show` keeps the content fully visible, `alt` hides it by default and reveals it while Alt is held, and `delete` hides it permanently with no Alt reveal.
+
 ## config reference
 
 ### affix display
 
 `affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix, `top_n` shows the first N with Alt to expand the rest (default), `alt_only` hides every affix unless Alt is held.
 
-The "Hold Alt for full details" prompt also appears when other handlers hide content. With `hide_durability_bonus` enabled, the prompt shows on durable items even when no affixes were truncated; pressing Alt reveals the durability line.
+The "Hold Alt for full details" prompt also appears when other handlers hide content. With `durability_bonus_mode` set to `alt` (the default), the prompt shows on durable items even when no affixes were truncated; pressing Alt reveals the durability line.
 
 `affix_visible_count` is the N for `top_n` mode. Default 3.
 
 `affix_sort_order` is one of `default`, `rarity`, `alphabetical`, `type`.
 
-`clean_affix_prefixes` strips prefixes from affix names. Off by default.
+`affix_prefixes_mode` controls the affix type prefixes (While held, On hit, On block, Passive). `show` (default) keeps them, `alt` hides them unless Alt is held, `delete` removes them permanently.
 
 `hidden_affix_ids` is a list of translation key prefixes for affixes you want hidden entirely.
 
 ### affix tooltip lines
 
-`hide_source_line` hides the affix source line.
+The affix source line is always hidden. There is no config option for it.
 
-`disable_summarization` hides the Apotheosis summary block (Cold/Fire/HP%/Spell Resistance).
+`summarization_mode` controls the Apotheosis summary block (Cold/Fire/HP%/Spell Resistance). `show` keeps it, `alt` (default) hides it unless Alt is held, `delete` removes it permanently.
 
-`hide_durability_bonus` hides the "ignores X% of durability damage" line.
+`durability_bonus_mode` controls the "ignores X% of durability damage" line. `show` keeps it, `alt` (default) hides it unless Alt is held, `delete` removes it permanently.
 
-`disable_potion_descriptions` hides potion-style affix descriptions.
+`potion_descriptions_mode` controls potion-style affix descriptions. `show` (default) keeps them, `alt` hides them unless Alt is held, `delete` removes them permanently.
 
-`hide_affix_extras` hides the `[⌛ MM:SS]` cooldown markers and `[Stacking]` modifier tags on affix lines. The affix text itself stays intact; only the bracketed annotations are stripped. Holding Alt while the item is hovered reveals the full line including the hidden markers.
+`affix_extras_mode` controls the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines; the affix text itself is never touched, only the bracketed annotations. `show` keeps them, `alt` (default) hides them unless Alt is held, `delete` removes them permanently.
 
 ### gem display
 

@@ -1,6 +1,7 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
 import com.nightwielder.apothictooltipcleanup.Config;
+import com.nightwielder.apothictooltipcleanup.util.HideMode;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -21,10 +22,15 @@ public final class AffixMarkerStripper {
     // affix.apotheosis.stacking; localized clients see translated text and the codepoint check
     // skips the line. The translation-key based sibling match is locale-agnostic, but the
     // short-circuit gates entry.
-    public static void apply(List<Component> tooltip) {
-        if (!Config.HIDE_AFFIX_EXTRAS.get()) return;
-        if (Screen.hasAltDown()) return;
+    //
+    // Returns true only when a marker was stripped in Alt-revealable form (alt mode, Alt up), so
+    // AltExpandHandler shows the reveal prompt. show and delete modes never set that signal.
+    public static boolean apply(List<Component> tooltip) {
+        String mode = Config.AFFIX_EXTRAS_MODE.get();
+        boolean altDown = Screen.hasAltDown();
+        if (!HideMode.hides(mode, altDown)) return false;
 
+        boolean stripped = false;
         for (Component line : tooltip) {
             if (!TooltipMatcher.keyStartsWith(line, "text.apotheosis.dot_prefix")) continue;
             String text = line.getString();
@@ -39,12 +45,14 @@ public final class AffixMarkerStripper {
                 String key = TooltipMatcher.getKey(siblings.get(i));
                 if (!"affix.apotheosis.cooldown".equals(key) && !"affix.apotheosis.stacking".equals(key)) continue;
                 siblings.remove(i);
+                stripped = true;
                 if (i - 1 >= 0 && isLiteralSpace(siblings.get(i - 1))) {
                     siblings.remove(i - 1);
                     i--;
                 }
             }
         }
+        return stripped && HideMode.revealable(mode, altDown);
     }
 
     private static boolean isLiteralSpace(Component c) {
