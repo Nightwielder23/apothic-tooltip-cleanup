@@ -1,6 +1,7 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
 import com.nightwielder.apothictooltipcleanup.Config;
+import com.nightwielder.apothictooltipcleanup.util.HideMode;
 import com.nightwielder.apothictooltipcleanup.util.TooltipMatcher;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -23,10 +24,13 @@ public final class AffixMarkerStripper {
 
     private AffixMarkerStripper() {}
 
-    public static void apply(List<Component> tooltip) {
-        if (!Config.HIDE_AFFIX_EXTRAS.get()) return;
-        // Holding Alt reveals the unstripped line, matching AltExpandHandler's reveal-on-hold UX.
-        if (Screen.hasAltDown()) return;
+    // Returns true only when a marker was stripped in Alt-revealable form (alt mode, Alt up), so
+    // AltExpandHandler shows the reveal prompt. show and delete modes never set that signal.
+    public static boolean apply(List<Component> tooltip) {
+        String mode = Config.AFFIX_EXTRAS_MODE.get();
+        boolean altDown = Screen.hasAltDown();
+        if (!HideMode.hides(mode, altDown)) return false;
+        boolean stripped = false;
         for (Component line : tooltip) {
             if (!TooltipMatcher.isBulletPrefix(line)) continue;
             String text = line.getString();
@@ -34,22 +38,27 @@ public final class AffixMarkerStripper {
             if (!(line.getContents() instanceof TranslatableContents tc)) continue;
             Object[] args = tc.getArgs();
             if (args.length == 0 || !(args[0] instanceof Component inner)) continue;
-            stripMarkerSiblings(inner.getSiblings());
+            stripped |= stripMarkerSiblings(inner.getSiblings());
         }
+        return stripped && HideMode.revealable(mode, altDown);
     }
 
     // Reverse walk so removals don't invalidate later indices. When a marker sibling is removed
     // we also drop the preceding " " separator so the bullet doesn't render with a trailing space.
-    private static void stripMarkerSiblings(List<Component> siblings) {
+    // Returns true if any marker sibling was removed.
+    private static boolean stripMarkerSiblings(List<Component> siblings) {
+        boolean removed = false;
         for (int i = siblings.size() - 1; i >= 0; i--) {
             String key = TooltipMatcher.getKey(siblings.get(i));
             if (!COOLDOWN_KEY.equals(key) && !STACKING_KEY.equals(key)) continue;
             siblings.remove(i);
+            removed = true;
             if (i > 0 && isLiteralSpace(siblings.get(i - 1))) {
                 siblings.remove(i - 1);
                 i--;
             }
         }
+        return removed;
     }
 
     private static boolean isLiteralSpace(Component component) {

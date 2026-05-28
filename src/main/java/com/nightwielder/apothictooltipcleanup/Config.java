@@ -1,5 +1,6 @@
 package com.nightwielder.apothictooltipcleanup;
 
+import com.nightwielder.apothictooltipcleanup.util.HideMode;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.Arrays;
@@ -14,15 +15,14 @@ public class Config {
     public static final ForgeConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
     public static final ForgeConfigSpec.BooleanValue SHIFT_TO_EXPAND;
     public static final ForgeConfigSpec.ConfigValue<String> AFFIX_SORT_ORDER;
-    public static final ForgeConfigSpec.BooleanValue CLEAN_AFFIX_PREFIXES;
+    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_PREFIXES_MODE;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
 
     // Affix tooltip lines
-    public static final ForgeConfigSpec.BooleanValue HIDE_SOURCE_LINE;
-    public static final ForgeConfigSpec.BooleanValue DISABLE_SUMMARIZATION;
-    public static final ForgeConfigSpec.BooleanValue HIDE_DURABILITY_BONUS;
-    public static final ForgeConfigSpec.BooleanValue DISABLE_POTION_DESCRIPTIONS;
-    public static final ForgeConfigSpec.BooleanValue HIDE_AFFIX_EXTRAS;
+    public static final ForgeConfigSpec.ConfigValue<String> SUMMARIZATION_MODE;
+    public static final ForgeConfigSpec.ConfigValue<String> DURABILITY_BONUS_MODE;
+    public static final ForgeConfigSpec.ConfigValue<String> POTION_DESCRIPTIONS_MODE;
+    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_EXTRAS_MODE;
 
     // Gem display (raw gems)
     public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
@@ -52,7 +52,7 @@ public class Config {
                 " all = show every affix",
                 " top_n = show first N, rest visible with Alt held",
                 " alt_only = hide every affix unless Alt is held");
-        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "top_n", Arrays.asList("all", "top_n", "alt_only"));
+        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "all", Arrays.asList("all", "top_n", "alt_only"));
 
         builder.comment(" Number of affixes shown when mode is top_n.");
         AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
@@ -60,8 +60,11 @@ public class Config {
         builder.comment(" Sort order: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "rarity", "alphabetical", "type"));
 
-        builder.comment(" Strips prefixes from affix names.");
-        CLEAN_AFFIX_PREFIXES = builder.define("clean_affix_prefixes", false);
+        builder.comment(" Affix type prefixes (While held, On hit, On block, Passive).",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        AFFIX_PREFIXES_MODE = builder.defineInList("affix_prefixes_mode", HideMode.SHOW, HideMode.OPTIONS);
 
         builder.comment(" Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
@@ -71,22 +74,30 @@ public class Config {
 
         builder.comment(" affix tooltip lines",
                 " ============================================================",
-                " Hides the affix source line.");
-        HIDE_SOURCE_LINE = builder.define("hide_source_line", false);
+                " The summary block (Cold/Fire/HP%/Spell Resistance lines).",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        SUMMARIZATION_MODE = builder.defineInList("summarization_mode", HideMode.ALT, HideMode.OPTIONS);
 
-        builder.comment(" Hides the summary block (Cold/Fire/HP%/Spell Resistance lines).");
-        DISABLE_SUMMARIZATION = builder.define("disable_summarization", false);
+        builder.comment(" The \"ignores X% of durability damage\" line.",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        DURABILITY_BONUS_MODE = builder.defineInList("durability_bonus_mode", HideMode.ALT, HideMode.OPTIONS);
 
-        builder.comment(" Hides the \"ignores X% of durability damage\" line.");
-        HIDE_DURABILITY_BONUS = builder.define("hide_durability_bonus", false);
+        builder.comment(" Potion-style affix descriptions.",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        POTION_DESCRIPTIONS_MODE = builder.defineInList("potion_descriptions_mode", HideMode.SHOW, HideMode.OPTIONS);
 
-        builder.comment(" Hides potion-style affix descriptions.");
-        DISABLE_POTION_DESCRIPTIONS = builder.define("disable_potion_descriptions", false);
-
-        builder.comment(" Hides the [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
-                " Strips just the annotations, the affix text remains unchanged.",
-                " Hold Alt to view the full line including markers.");
-        HIDE_AFFIX_EXTRAS = builder.define("hide_affix_extras", true);
+        builder.comment(" The [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
+                " The affix text itself is never touched, only the annotations.",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        AFFIX_EXTRAS_MODE = builder.defineInList("affix_extras_mode", HideMode.ALT, HideMode.OPTIONS);
 
         builder.comment(" gem display (raw gems)",
                 " ============================================================",

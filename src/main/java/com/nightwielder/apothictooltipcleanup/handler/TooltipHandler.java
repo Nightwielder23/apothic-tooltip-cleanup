@@ -32,18 +32,6 @@ public class TooltipHandler {
             HiddenAffixHandler.apply(tooltip, hiddenIds);
         }
 
-        if (Config.HIDE_SOURCE_LINE.get()) {
-            SourceLineRemover.apply(tooltip);
-        }
-
-        if (Config.DISABLE_SUMMARIZATION.get()) {
-            SummarizationDisabler.apply(tooltip);
-        }
-
-        if (Config.CLEAN_AFFIX_PREFIXES.get()) {
-            PrefixCleaner.apply(tooltip);
-        }
-
         String sortOrder = Config.AFFIX_SORT_ORDER.get();
         if (!"default".equals(sortOrder)) {
             AffixSorter.apply(tooltip, sortOrder);
@@ -53,21 +41,21 @@ public class TooltipHandler {
             EmptySocketMerger.apply(tooltip);
         }
 
-        if (Config.DISABLE_POTION_DESCRIPTIONS.get() && ApotheosisDetector.isApothicAttributesLoaded()) {
-            PotionDescriptionToggle.apply(stack, tooltip);
+        // Each hideable feature runs in show / alt / delete mode and reports whether it hid
+        // Alt-revealable content this pass. The accumulated flag drives the single "Hold Alt for
+        // full details" prompt added by AltExpandHandler. delete-mode and show-mode hides never set
+        // it, since Alt cannot bring those back.
+        boolean anyAltRevealableHidden = false;
+        anyAltRevealableHidden |= PrefixCleaner.apply(tooltip);
+        anyAltRevealableHidden |= SourceLineRemover.apply(tooltip);
+        anyAltRevealableHidden |= SummarizationDisabler.apply(tooltip);
+        if (ApotheosisDetector.isApothicAttributesLoaded()) {
+            anyAltRevealableHidden |= PotionDescriptionToggle.apply(stack, tooltip);
         }
+        anyAltRevealableHidden |= AffixMarkerStripper.apply(tooltip);
+        anyAltRevealableHidden |= DurabilityHider.apply(tooltip);
 
-        // Strip [⌛ MM:SS] / [Stacking] markers before AltExpandHandler so its truncation budget
-        // and "Hold Alt for full details" prompt operate on the same lines the user actually sees.
-        if (Config.HIDE_AFFIX_EXTRAS.get()) {
-            AffixMarkerStripper.apply(tooltip);
-        }
-
-        AltExpandHandler.apply(tooltip);
-
-        if (Config.HIDE_DURABILITY_BONUS.get()) {
-            DurabilityHider.apply(tooltip);
-        }
+        AltExpandHandler.apply(tooltip, anyAltRevealableHidden);
 
         if (Config.RARITY_COLORS_ENABLED.get()) {
             String hex = resolveRarityHex(stack);
