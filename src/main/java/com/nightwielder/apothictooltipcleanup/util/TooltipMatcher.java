@@ -3,6 +3,7 @@ package com.nightwielder.apothictooltipcleanup.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
+// Helpers for reading Apotheosis tooltip lines and figuring out what kind of line each one is.
 public final class TooltipMatcher {
     private static final String[] APOTH_PREFIXES = {
             "apotheosis:",
@@ -18,6 +19,7 @@ public final class TooltipMatcher {
 
     private TooltipMatcher() {}
 
+    // The line's translation key, or null if it isn't a translatable component.
     public static String getKey(Component component) {
         if (component == null) return null;
         if (component.getContents() instanceof TranslatableContents tc) {
@@ -31,16 +33,18 @@ public final class TooltipMatcher {
         return key != null && key.startsWith(prefix);
     }
 
-    // Apotheosis 7.x emphasizes some affix and bonus lines with star_prefix instead of dot_prefix;
-    // both are bullet wrappers, so input-side checks should accept either.
+    // A bullet line. Apoth 7.x also wraps some lines in star_prefix, so accept either.
     public static boolean isBulletPrefix(Component component) {
         return keyStartsWith(component, "text.apotheosis.dot_prefix")
                 || keyStartsWith(component, "text.apotheosis.star_prefix");
     }
 
-    // Affix lines are prose ("On hit, ...", "When held, ..."), while gem bonus lines on
-    // sockets follow "<Category>: <effect>". Both arrive bullet-wrapped, so the check is
-    // whether ":" is the first punctuation character in the rendered text.
+    // Behavior:
+    //  - tells affix bullets from gem bonus bullets. gem bonuses have a ":" before any other punctuation.
+    // Parameters:
+    //  - component: a tooltip line
+    // Returns:
+    //  - true if it looks like an affix line
     public static boolean isAffixLine(Component component) {
         if (!isBulletPrefix(component)) return false;
         String text = component.getString();
@@ -52,6 +56,7 @@ public final class TooltipMatcher {
         return true;
     }
 
+    // True if the line or any of its siblings came from Apotheosis or an add-on.
     public static boolean isApotheosisLine(Component component) {
         if (component == null) return false;
         String key = getKey(component);

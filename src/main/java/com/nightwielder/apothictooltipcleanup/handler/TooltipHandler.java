@@ -14,9 +14,15 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
+// Client tooltip handler. Runs each item tooltip through the cleanup handlers, but only when
+// Apotheosis is loaded. Lowest priority so other mods have already run.
 @Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TooltipHandler {
 
+    // Behavior:
+    //  - runs each handler over the tooltip in order. AltExpandHandler adds the prompt at the end.
+    // Parameters:
+    //  - event: the tooltip event, edited in place.
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
@@ -41,24 +47,22 @@ public class TooltipHandler {
             EmptySocketMerger.apply(tooltip);
         }
 
-        // Each hideable feature runs in show / alt / delete mode and reports whether it hid
-        // Alt-revealable content this pass. The accumulated flag drives the single "Hold Alt for
-        // full details" prompt added by AltExpandHandler. delete-mode and show-mode hides never set
-        // it, since Alt cannot bring those back.
-        boolean anyAltRevealableHidden = false;
-        anyAltRevealableHidden |= PrefixCleaner.apply(tooltip);
-        anyAltRevealableHidden |= SourceLineRemover.apply(tooltip);
-        anyAltRevealableHidden |= SummarizationDisabler.apply(tooltip);
+        // each handler returns true if it hid something Alt can reveal. OR them together so
+        // AltExpandHandler knows whether to add the prompt.
+        boolean anyHidden = false;
+        anyHidden |= PrefixCleaner.apply(tooltip);
+        anyHidden |= SourceLineRemover.apply(tooltip);
+        anyHidden |= SummarizationDisabler.apply(tooltip);
         if (ApotheosisDetector.isApothicAttributesLoaded()) {
-            anyAltRevealableHidden |= PotionDescriptionToggle.apply(stack, tooltip);
+            anyHidden |= PotionDescriptionToggle.apply(stack, tooltip);
         }
-        anyAltRevealableHidden |= AffixMarkerStripper.apply(tooltip);
-        anyAltRevealableHidden |= DurabilityHider.apply(tooltip);
+        anyHidden |= AffixMarkerStripper.apply(tooltip);
+        anyHidden |= DurabilityHider.apply(tooltip);
 
-        AltExpandHandler.apply(tooltip, anyAltRevealableHidden);
+        AltExpandHandler.apply(tooltip, anyHidden);
 
         if (Config.RARITY_COLORS_ENABLED.get()) {
-            String hex = resolveRarityHex(stack);
+            String hex = rarityHex(stack);
             if (hex != null) {
                 RarityColorOverride.apply(stack, tooltip, hex);
             }
@@ -69,17 +73,17 @@ public class TooltipHandler {
         }
     }
 
-    private static String resolveRarityHex(ItemStack stack) {
+    // Hex color for the item's rarity, or null if it has none. Rarity is in the affix_data NBT.
+    // Unknown rarities fall back to ancient.
+    private static String rarityHex(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null || !tag.contains("affix_data")) return null;
         String rarity = tag.getCompound("affix_data").getString("rarity");
-        if (rarity == null || rarity.isEmpty()) return null;
-        // Strip whatever namespace produced the rarity (apotheosis:, apotheotic_additions:, etc).
+        if (rarity.isEmpty()) return null;
         int colon = rarity.indexOf(':');
         if (colon >= 0) {
             rarity = rarity.substring(colon + 1);
         }
-        // Unknown rarities (e.g. apotheotic_additions:esoteric) fall through to ancient as the highest tier.
         return switch (rarity) {
             case "common" -> Config.COMMON.get();
             case "uncommon" -> Config.UNCOMMON.get();

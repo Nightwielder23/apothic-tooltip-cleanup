@@ -8,10 +8,8 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-// Text-path fallback for the merge-empty-sockets feature. socket.apotheosis.empty doesn't reach
-// ItemTooltipEvent.getToolTip() on the standard render path; that case is handled by
-// SocketCompactor at RenderTooltipEvent.GatherComponents. This handler still runs in case some
-// modpack setup leaks the key into the text tooltip.
+// Text-path fallback for merging empty sockets. The key usually never reaches the text tooltip
+// (SocketCompactor handles it at gather time). This is a backup in case it leaks through.
 public final class EmptySocketMerger {
     private static final String EMPTY_SOCKET_KEY = "socket.apotheosis.empty";
 
@@ -31,6 +29,8 @@ public final class EmptySocketMerger {
         Component summary = Component.literal("◇ x" + emptyIndices.size() + " empty sockets")
                 .withStyle(ChatFormatting.GRAY);
 
+        // remove the extras back to front so earlier indices stay valid.
+        // the first slot becomes the summary line.
         for (int i = emptyIndices.size() - 1; i >= 1; i--) {
             tooltip.remove((int) emptyIndices.get(i));
         }

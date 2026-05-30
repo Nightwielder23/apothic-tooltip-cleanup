@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+// Mod entry point. Registers the client config. The tooltip work is in the handlers.
 @Mod(ApothicTooltipCleanup.MODID)
 public class ApothicTooltipCleanup {
     public static final String MODID = "apothic_tooltip_cleanup";
