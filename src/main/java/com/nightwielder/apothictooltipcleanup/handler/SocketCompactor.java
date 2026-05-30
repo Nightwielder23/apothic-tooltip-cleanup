@@ -19,11 +19,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-// Runs after Apotheosis's GatherComponents handler, which inserts the SocketComponent where
-// APOTH_SOCKET_MARKER used to sit. Reflection-based to avoid a compile-time dep on Apotheosis.
-// When 2+ sockets are empty: all-empty becomes a single text summary; mixed rebuilds the
-// SocketComponent with only the filled gems and inserts the summary line right after it.
-// Filled gem icons are preserved either way.
+// Merges empty sockets on the icon-render path, where Apotheosis has already inserted its
+// SocketComponent. We reach into it by reflection to avoid a compile-time dep. With 2+ empty
+// sockets, all-empty collapses to one text line. mixed keeps the filled gems and adds a summary below.
 @EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT)
 public final class SocketCompactor {
     private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.client.SocketTooltipRenderer$SocketComponent";
@@ -37,6 +35,10 @@ public final class SocketCompactor {
 
     private SocketCompactor() {}
 
+    // Behavior:
+    //  - collapses 2+ empty sockets in Apotheosis's socket component into one summary line.
+    // Parameters:
+    //  - event: the gather-components event, edited in place.
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onGatherComponents(RenderTooltipEvent.GatherComponents event) {
         if (!Config.MERGE_EMPTY_SOCKETS.get()) return;
@@ -78,7 +80,7 @@ public final class SocketCompactor {
                     continue;
                 }
 
-                // Mixed: rebuild SocketComponent with only filled gems, then insert summary line after it.
+                // mixed: rebuild with only the filled gems. add the summary line after.
                 if (socketedGemsCtor == null) {
                     socketedGemsCtor = gems.getClass().getConstructor(List.class);
                 }

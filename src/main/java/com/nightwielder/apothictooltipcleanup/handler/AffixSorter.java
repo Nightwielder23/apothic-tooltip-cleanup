@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+// Reorders the affix lines in place. Pulls them out, sorts them, and writes them back into the
+// same slots.
 public final class AffixSorter {
     private AffixSorter() {}
 
@@ -34,8 +36,8 @@ public final class AffixSorter {
         }
     }
 
-    // Affix rarity and type live inside the dot_prefix translation arguments, which we can't reliably
-    // parse, so both fall back to alphabetical for now.
+    // rarity and type live in the translation args we can't parse yet.
+    // all three sort alphabetically for now.
     private static Comparator<Component> comparatorFor(String sortOrder) {
         return switch (sortOrder) {
             case "alphabetical", "rarity", "type" ->

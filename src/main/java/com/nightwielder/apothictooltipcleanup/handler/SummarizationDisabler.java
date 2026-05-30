@@ -8,20 +8,25 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
+// Hides the Apotheosis affix summary block (the Cold/Fire/HP%/Spell Resistance lines).
 public final class SummarizationDisabler {
     private SummarizationDisabler() {}
 
-    // Returns true only when a summary line was hidden in Alt-revealable form (alt mode, Alt up),
-    // so AltExpandHandler shows the reveal prompt. show and delete modes never set that signal.
+    // Behavior:
+    //  - drops the summary lines when the mode hides them (see HideMode)
+    // Parameters:
+    //  - tooltip: the lines being shown, edited in place
+    // Returns:
+    //  - true if it hid an alt-revealable line
     public static boolean apply(List<Component> tooltip) {
         String mode = Config.SUMMARIZATION_MODE.get();
         boolean altDown = Screen.hasAltDown();
         if (!HideMode.hides(mode, altDown)) return false;
-        // Primary: the Apotheosis affix summary block uses attributeslib.modifier.* keys.
+        // the summary block normally uses attributeslib.modifier.* keys
         boolean removed = tooltip.removeIf(c -> TooltipMatcher.keyStartsWith(c, "attributeslib.modifier"));
 
-        // Fallback for older or alternate setups that route the summary through vanilla attribute keys.
-        // May also strip genuine vanilla attribute lines on apoth-affixed items.
+        // some setups route the summary through vanilla attribute keys. only fall back when an
+        // Apotheosis line is present. otherwise we'd strip genuine vanilla attribute lines.
         boolean hasApothLine = tooltip.stream().anyMatch(TooltipMatcher::isApotheosisLine);
         if (hasApothLine) {
             removed |= tooltip.removeIf(c -> TooltipMatcher.keyStartsWith(c, "attribute.modifier."));

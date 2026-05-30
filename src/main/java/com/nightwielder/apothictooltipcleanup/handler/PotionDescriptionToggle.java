@@ -10,11 +10,17 @@ import net.minecraft.world.item.PotionItem;
 
 import java.util.List;
 
+// Hides the potion-style affix descriptions Apothic Attributes adds to potions.
 public final class PotionDescriptionToggle {
     private PotionDescriptionToggle() {}
 
-    // Returns true only when descriptions were hidden in Alt-revealable form (alt mode, Alt up), so
-    // AltExpandHandler shows the reveal prompt. show and delete modes never set that signal.
+    // Behavior:
+    //  - on potions, drops the apothic_attributes description lines when the mode hides them
+    // Parameters:
+    //  - stack: the item the tooltip is for
+    //  - tooltip: the lines being shown, edited in place
+    // Returns:
+    //  - true if it hid an alt-revealable line
     public static boolean apply(ItemStack stack, List<Component> tooltip) {
         String mode = Config.POTION_DESCRIPTIONS_MODE.get();
         boolean altDown = Screen.hasAltDown();

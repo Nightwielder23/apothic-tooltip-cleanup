@@ -6,6 +6,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import java.util.Arrays;
 import java.util.List;
 
+// All the client config, built once into SPEC. Handlers read these values fresh each tooltip pass.
 public class Config {
     public static final ModConfigSpec SPEC;
 
@@ -46,13 +47,13 @@ public class Config {
 
         builder.comment(" affix display",
                 " ============================================================",
-                " Controls how many affixes show on a tooltip.",
+                " How many affixes show on a tooltip.",
                 " all = show every affix",
-                " top_n = show first N, rest visible with Alt held",
+                " top_n = show first N, rest under Alt",
                 " alt_only = hide every affix unless Alt is held");
         AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "all", Arrays.asList("all", "top_n", "alt_only"));
 
-        builder.comment(" Number of affixes shown when mode is top_n.");
+        builder.comment(" Affixes shown when mode is top_n.");
         AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
 
         builder.comment(" Sort order: default, rarity, alphabetical, type.");
@@ -88,7 +89,7 @@ public class Config {
         POTION_DESCRIPTIONS_MODE = builder.defineInList("potion_descriptions_mode", HideMode.SHOW, HideMode.OPTIONS);
 
         builder.comment(" The [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
-                " The affix text itself is never touched, only the annotations.",
+                " Only the annotations are touched, never the affix text.",
                 " show = always visible",
                 " alt = hidden unless Alt is held",
                 " delete = always hidden, Alt has no effect");
@@ -96,34 +97,35 @@ public class Config {
 
         builder.comment(" gem display (raw gems)",
                 " ============================================================",
-                " Controls how raw gem tooltips display.",
+                " How raw gem tooltips display.",
                 " full = original Apotheosis layout",
                 " compact = strip headers, keep per-bullet categories and bonuses",
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
 
-        builder.comment(" Case-insensitive list of gem categories to hide from Fits In tooltips.",
-                " Works in all gem_tooltip_mode values including full.");
+        builder.comment(" Gem categories to hide from 'Fits In' lists. Case-insensitive.",
+                " Example: [\"Bows\", \"Crossbows\"] to hide ranged weapons.",
+                " No effect when gem_tooltip_mode is hidden, since that drops all gem info anyway.");
         HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", List.of(), () -> "", o -> o instanceof String);
 
         builder.comment(" sockets",
                 " ============================================================",
                 " Merges empty sockets into one summary line.",
-                " All-empty: single line replaces the empty rows.",
-                " Mixed: filled gems still render, empty count appended below.");
+                " All-empty: one line replaces the empty rows.",
+                " Mixed: filled gems still render, empty count added below.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
 
         builder.comment(" Hides the APOTH_SOCKET_MARKER literal text.",
-                " Only enable if the marker is leaking through visibly.",
-                " Can hide the socket UI on socketed items if enabled.");
+                " Only turn on if the marker is leaking through visibly.",
+                " Can hide the socket UI on socketed items.");
         HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);
 
         builder.pop();
 
         builder.push("rarity_colors");
 
-        builder.comment(" Enables custom rarity color overrides.",
+        builder.comment(" Turns on custom rarity color overrides.",
                 " When false, vanilla Apotheosis colors are used.");
         RARITY_COLORS_ENABLED = builder.define("rarity_colors_enabled", false);
 
@@ -134,7 +136,8 @@ public class Config {
         RARE = builder.define("rare", "0x55FFFF");
         EPIC = builder.define("epic", "0xFF55FF");
         MYTHIC = builder.define("mythic", "0xFFAA00");
-        builder.comment(" Color used for unknown rarities. In Apotheosis 8.x ancient is no longer a built-in rarity, but this color still applies to Apotheotic Additions esoteric and any other unrecognized rarity.");
+        builder.comment(" Fallback color for unknown rarities (e.g. Apotheotic Additions esoteric).",
+                " Apotheosis 8.x has no built-in ancient tier.");
         ANCIENT = builder.define("ancient", "0xFF5555");
 
         builder.pop();

@@ -5,6 +5,8 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
+// Removes any line still showing the raw APOTH_SOCKET_MARKER text. Off by default. Only needed if
+// Apotheosis lets the marker leak through.
 public final class MarkerCleaner {
     private MarkerCleaner() {}
 

@@ -15,12 +15,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+// Reshapes raw gem tooltips: the "Fits In" categories and the "When Socketed In" bonuses.
+// gem_tooltip_mode controls how aggressive the cleanup is (full, compact, ultra, hidden).
 public final class FitsInRemover {
-    // Apotheosis renders the "Fits In:" header and category bullets in this teal-blue color.
+    // teal-blue Apotheosis uses for the Fits In header and category bullets
     private static final int FITS_IN_COLOR = 720650;
 
-    // Group buckets used by sortByGroup. Iteration order is the output order; categories within
-    // each group keep their input order. Anything unmatched falls into Other.
+    // Output order for ultra mode's category line: weapons, armor, mining tools, then Other.
+    // Within a group, input order is kept.
     private static final LinkedHashMap<String, Set<String>> CATEGORY_GROUPS = new LinkedHashMap<>();
     static {
         CATEGORY_GROUPS.put("Weapons", caseInsensitive(
@@ -36,10 +38,14 @@ public final class FitsInRemover {
 
     private FitsInRemover() {}
 
+    // Behavior:
+    //  - rewrites the gem tooltip for the current gem_tooltip_mode.
+    // Parameters:
+    //  - tooltip: the lines being shown, edited in place
     public static void apply(List<Component> tooltip) {
         String mode = Config.GEM_TOOLTIP_MODE.get();
         if ("full".equalsIgnoreCase(mode)) {
-            applyFullCategoryFilter(tooltip);
+            filterFullCategories(tooltip);
             return;
         }
 
@@ -61,8 +67,7 @@ public final class FitsInRemover {
             }
 
             int afterBullets = i + 1;
-            while (afterBullets < tooltip.size()
-                    && TooltipMatcher.keyStartsWith(tooltip.get(afterBullets), "text.apotheosis.dot_prefix")) {
+            while (afterBullets < tooltip.size() && TooltipMatcher.isBulletPrefix(tooltip.get(afterBullets))) {
                 afterBullets++;
             }
 
@@ -82,14 +87,12 @@ public final class FitsInRemover {
                     }
                     continue;
                 }
-                // compact: replace the header with a plain teal "Fits in:" line, then drop any
-                // hidden categories from the bullets below it.
+                // compact: replace the header with a plain "Fits in:" line. drop hidden categories below it.
                 tooltip.set(i, fitsInHeaderBullet());
                 int headerIndex = i;
                 i++;
                 int bulletIndex = i;
-                while (bulletIndex < afterBullets
-                        && TooltipMatcher.keyStartsWith(tooltip.get(bulletIndex), "text.apotheosis.dot_prefix")) {
+                while (bulletIndex < afterBullets && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
                     String inner = extractBulletText(tooltip.get(bulletIndex));
                     if (inner == null || inner.isEmpty()) {
                         bulletIndex++;
@@ -107,9 +110,8 @@ public final class FitsInRemover {
                         bulletIndex++;
                     }
                 }
-                // Every category bullet filtered out leaves the header with nothing below it; drop it.
-                if (headerIndex + 1 >= tooltip.size()
-                        || !TooltipMatcher.keyStartsWith(tooltip.get(headerIndex + 1), "text.apotheosis.dot_prefix")) {
+                // header has nothing under it now, so drop it.
+                if (headerIndex + 1 >= tooltip.size() || !TooltipMatcher.isBulletPrefix(tooltip.get(headerIndex + 1))) {
                     tooltip.remove(headerIndex);
                     i--;
                 }
@@ -142,16 +144,16 @@ public final class FitsInRemover {
                 }
                 continue;
             }
-            // Unknown mode: defensive drop of header.
+            // unknown mode: drop the header to be safe.
             tooltip.remove(i);
         }
 
         cleanupOrphanBlanks(tooltip);
     }
 
-    // Full mode preserves Apoth's native gem layout, so we only filter the Fits In category list
-    // and leave everything else (header text, bonus block, blank lines) untouched.
-    private static void applyFullCategoryFilter(List<Component> tooltip) {
+    // full mode keeps Apoth's layout, so just walk each Fits-In block and drop hidden categories.
+    // a bullet with nothing left is removed, and so is a header with no bullets under it.
+    private static void filterFullCategories(List<Component> tooltip) {
         List<? extends String> hiddenCategories = Config.HIDDEN_GEM_CATEGORIES.get();
         if (hiddenCategories == null || hiddenCategories.isEmpty()) return;
 
@@ -168,8 +170,7 @@ public final class FitsInRemover {
             int headerIndex = i;
             int bulletIndex = i + 1;
             int afterBullets = bulletIndex;
-            while (afterBullets < tooltip.size()
-                    && TooltipMatcher.keyStartsWith(tooltip.get(afterBullets), "text.apotheosis.dot_prefix")) {
+            while (afterBullets < tooltip.size() && TooltipMatcher.isBulletPrefix(tooltip.get(afterBullets))) {
                 afterBullets++;
             }
 
@@ -192,8 +193,7 @@ public final class FitsInRemover {
                 }
             }
 
-            if (headerIndex + 1 >= tooltip.size()
-                    || !TooltipMatcher.keyStartsWith(tooltip.get(headerIndex + 1), "text.apotheosis.dot_prefix")) {
+            if (headerIndex + 1 >= tooltip.size() || !TooltipMatcher.isBulletPrefix(tooltip.get(headerIndex + 1))) {
                 tooltip.remove(headerIndex);
                 i = headerIndex;
             } else {
@@ -202,14 +202,14 @@ public final class FitsInRemover {
         }
     }
 
+    // ultra mode: one bullet with every category and the "Fits in:" label inline.
     private static Component joinedCategoryBullet(String text) {
         return Component.translatable("text.apotheosis.dot_prefix",
                         Component.literal("Fits in: " + text))
                 .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
 
-    // Compact mode renders this as a standalone header line above the existing category bullets,
-    // so it is intentionally a plain literal without the dot_prefix bullet wrap.
+    // compact mode's standalone "Fits in:" header. plain literal, no bullet wrap.
     private static Component fitsInHeaderBullet() {
         return Component.literal("Fits in:").withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
@@ -234,8 +234,6 @@ public final class FitsInRemover {
         return bonus + " (" + category + ")";
     }
 
-    // Reorders a category list so weapons come first, then armor, then mining tools, then anything
-    // that did not match a defined group. Within each group the input order is preserved.
     private static List<String> sortByGroup(List<String> categories) {
         LinkedHashMap<String, List<String>> buckets = new LinkedHashMap<>();
         for (String groupName : CATEGORY_GROUPS.keySet()) buckets.put(groupName, new ArrayList<>());
@@ -265,7 +263,7 @@ public final class FitsInRemover {
         return names;
     }
 
-    // Splits a category bullet's inner text ("Swords, Bows, ...") into trimmed, non-empty names.
+    // splits "Swords, Bows, ..." into trimmed, non-empty names
     private static List<String> splitCategories(String inner) {
         List<String> names = new ArrayList<>();
         for (String part : inner.split(",")) {
@@ -275,7 +273,7 @@ public final class FitsInRemover {
         return names;
     }
 
-    // Drops any category names listed in the hidden_gem_categories config, case-insensitively.
+    // drops any names listed in hidden_gem_categories, case-insensitive
     private static List<String> filterHidden(List<String> categories) {
         List<? extends String> hidden = Config.HIDDEN_GEM_CATEGORIES.get();
         if (hidden == null || hidden.isEmpty()) return categories;
@@ -288,9 +286,8 @@ public final class FitsInRemover {
         return filtered;
     }
 
-    // Rebuilds a Fits-In category bullet after hidden categories are dropped, preserving the teal
-    // styling Apoth uses natively. Used by compact mode (after the synthesized header) and full mode
-    // (under Apoth's original header).
+    // rebuilds a Fits-In category bullet with the teal styling after dropping hidden categories.
+    // used by both compact and full mode.
     private static Component categoryBullet(String text) {
         return Component.translatable("text.apotheosis.dot_prefix", Component.literal(text))
                 .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
@@ -308,8 +305,7 @@ public final class FitsInRemover {
         }
     }
 
-    // Each dot_prefix bullet is TranslatableContents("text.apotheosis.dot_prefix", [innerComponent]).
-    // The visible payload (categories or bonus text) is the rendered string of arg[0].
+    // a bullet keeps its text as arg[0]. returns that, or null if the shape is off.
     private static String extractBulletText(Component bullet) {
         if (!(bullet.getContents() instanceof TranslatableContents tc)) return null;
         Object[] args = tc.getArgs();
@@ -323,13 +319,12 @@ public final class FitsInRemover {
         for (int k = toExclusive - 1; k >= from; k--) tooltip.remove(k);
     }
 
-    // After mode-specific transformation, a blank line that used to separate the Fits-In and
-    // When-Socketed-In sections may now sit between two dot_prefix bullets. Drop those.
+    // a rewrite can leave a blank line stuck between two bullets. drop those.
     private static void cleanupOrphanBlanks(List<Component> tooltip) {
         for (int k = tooltip.size() - 2; k >= 1; k--) {
             if (!isBlank(tooltip.get(k))) continue;
-            if (TooltipMatcher.keyStartsWith(tooltip.get(k - 1), "text.apotheosis.dot_prefix")
-                    && TooltipMatcher.keyStartsWith(tooltip.get(k + 1), "text.apotheosis.dot_prefix")) {
+            if (TooltipMatcher.isBulletPrefix(tooltip.get(k - 1))
+                    && TooltipMatcher.isBulletPrefix(tooltip.get(k + 1))) {
                 tooltip.remove(k);
             }
         }
