@@ -19,6 +19,11 @@ public final class SummarizationDisabler {
     // Returns:
     //  - true if it hid an alt-revealable line
     public static boolean apply(List<Component> tooltip) {
+        // raw gems emit single-attribute socket bonuses with the same attributeslib.modifier key the
+        // summary block uses; skip gems so their "When Socketed" line is not stripped (which would
+        // orphan the header). non-gem summary blocks are unaffected.
+        if (TooltipMatcher.isGem(tooltip)) return false;
+
         String mode = Config.SUMMARIZATION_MODE.get();
         boolean altDown = Screen.hasAltDown();
         if (!HideMode.hides(mode, altDown)) return false;

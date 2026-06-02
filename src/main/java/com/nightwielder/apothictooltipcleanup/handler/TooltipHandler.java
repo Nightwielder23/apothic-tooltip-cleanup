@@ -32,6 +32,7 @@ public class TooltipHandler {
         List<Component> tooltip = event.getToolTip();
 
         FitsInRemover.apply(tooltip);
+        GemBlankLineCleaner.apply(tooltip);
 
         List<? extends String> hiddenIds = Config.HIDDEN_AFFIX_IDS.get();
         if (!hiddenIds.isEmpty()) {

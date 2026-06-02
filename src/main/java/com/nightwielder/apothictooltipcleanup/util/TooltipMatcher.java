@@ -3,6 +3,8 @@ package com.nightwielder.apothictooltipcleanup.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
+import java.util.List;
+
 // Helpers for reading Apotheosis tooltip lines and figuring out what kind of line each one is.
 public final class TooltipMatcher {
     private static final String[] APOTH_PREFIXES = {
@@ -20,9 +22,19 @@ public final class TooltipMatcher {
 
     // The line's translation key, or null if it isn't a translatable component.
     public static String getKey(Component component) {
+        TranslatableContents tc = translatable(component);
+        return tc == null ? null : tc.getKey();
+    }
+
+    // The component's translatable contents, or null. Apoth 6.x builds some tooltip lines (gem
+    // headers and bullets among them) by appending the actual translatable onto an empty base
+    // component, so the top-level contents is a literal and the key sits on the first sibling.
+    // Check the siblings too, otherwise key matching misses every gem line.
+    public static TranslatableContents translatable(Component component) {
         if (component == null) return null;
-        if (component.getContents() instanceof TranslatableContents tc) {
-            return tc.getKey();
+        if (component.getContents() instanceof TranslatableContents tc) return tc;
+        for (Component sibling : component.getSiblings()) {
+            if (sibling.getContents() instanceof TranslatableContents tc) return tc;
         }
         return null;
     }
@@ -52,6 +64,17 @@ public final class TooltipMatcher {
             if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';') return true;
         }
         return true;
+    }
+
+    // True for a raw gem tooltip. Apoth tags the Fits In header with socketable_into; FitsInRemover's
+    // compact mode rewrites it to a plain "Fits in:" literal, so accept either.
+    public static boolean isGem(List<Component> tooltip) {
+        for (Component line : tooltip) {
+            if (keyStartsWith(line, "text.apotheosis.socketable_into") || "Fits in:".equals(line.getString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // True if the line or any of its siblings came from Apotheosis or an add-on.
