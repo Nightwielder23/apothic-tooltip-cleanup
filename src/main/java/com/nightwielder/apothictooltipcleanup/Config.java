@@ -1,146 +1,17 @@
 package com.nightwielder.apothictooltipcleanup;
 
-import com.nightwielder.apothictooltipcleanup.util.HideMode;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-// All the client config, built once into SPEC. Handlers read these values fresh each tooltip pass.
+// Phase 2 stub: an empty client config spec so the mod can register a config without crashing.
+// Real config entries are added back in a later port phase.
 public class Config {
     public static final ForgeConfigSpec SPEC;
 
-    // Affix display
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_DISPLAY_MODE;
-    public static final ForgeConfigSpec.IntValue AFFIX_VISIBLE_COUNT;
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_SORT_ORDER;
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_PREFIXES_MODE;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_AFFIX_IDS;
-
-    // Affix tooltip lines
-    public static final ForgeConfigSpec.ConfigValue<String> SUMMARIZATION_MODE;
-    public static final ForgeConfigSpec.ConfigValue<String> DURABILITY_BONUS_MODE;
-    public static final ForgeConfigSpec.ConfigValue<String> POTION_DESCRIPTIONS_MODE;
-    public static final ForgeConfigSpec.ConfigValue<String> AFFIX_EXTRAS_MODE;
-
-    // Gem display (raw gems)
-    public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> HIDDEN_GEM_CATEGORIES;
-
-    // Sockets
-    public static final ForgeConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
-    public static final ForgeConfigSpec.BooleanValue HIDE_APOTH_MARKER;
-
-    // Rarity colors
-    public static final ForgeConfigSpec.BooleanValue RARITY_COLORS_ENABLED;
-    public static final ForgeConfigSpec.ConfigValue<String> COMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> UNCOMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> RARE;
-    public static final ForgeConfigSpec.ConfigValue<String> EPIC;
-    public static final ForgeConfigSpec.ConfigValue<String> MYTHIC;
-    public static final ForgeConfigSpec.ConfigValue<String> ANCIENT;
-
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-
-        builder.push("features");
-
-        builder.comment(" affix display",
-                " ============================================================",
-                " How many affixes show on a tooltip.",
-                " all = show every affix",
-                " top_n = show first N, rest under Alt",
-                " alt_only = hide every affix unless Alt is held");
-        AFFIX_DISPLAY_MODE = builder.defineInList("affix_display_mode", "all", Arrays.asList("all", "top_n", "alt_only"));
-
-        builder.comment(" Affixes shown when mode is top_n.");
-        AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
-
-        builder.comment(" Sort order: default, rarity, alphabetical, type.");
-        AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "rarity", "alphabetical", "type"));
-
-        builder.comment(" Affix type prefixes (While held, On hit, On block, Passive).",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
-        AFFIX_PREFIXES_MODE = builder.defineInList("affix_prefixes_mode", HideMode.SHOW, HideMode.OPTIONS);
-
-        builder.comment(" Translation key prefixes of affixes to hide.");
-        HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", Collections.emptyList(), o -> o instanceof String);
-
-        builder.comment(" affix tooltip lines",
-                " ============================================================",
-                " The summary block (Cold/Fire/HP%/Spell Resistance lines).",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
-        SUMMARIZATION_MODE = builder.defineInList("summarization_mode", HideMode.ALT, HideMode.OPTIONS);
-
-        builder.comment(" The \"ignores X% of durability damage\" line.",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
-        DURABILITY_BONUS_MODE = builder.defineInList("durability_bonus_mode", HideMode.ALT, HideMode.OPTIONS);
-
-        builder.comment(" Potion-style affix descriptions.",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
-        POTION_DESCRIPTIONS_MODE = builder.defineInList("potion_descriptions_mode", HideMode.SHOW, HideMode.OPTIONS);
-
-        builder.comment(" The [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
-                " Only the annotations are touched, never the affix text.",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
-        AFFIX_EXTRAS_MODE = builder.defineInList("affix_extras_mode", HideMode.ALT, HideMode.OPTIONS);
-
-        builder.comment(" gem display (raw gems)",
-                " ============================================================",
-                " How raw gem tooltips display.",
-                " full = original Apotheosis layout",
-                " compact = strip headers, keep per-bullet categories and bonuses",
-                " ultra = one line for categories, one line for bonuses",
-                " hidden = remove all gem info");
-        GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
-
-        builder.comment(" Gem categories to hide from 'Fits In' lists. Case-insensitive.",
-                " Example: [\"Bows\", \"Crossbows\"] to hide ranged weapons.",
-                " No effect when gem_tooltip_mode is hidden, since that drops all gem info anyway.");
-        HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", Collections.emptyList(), o -> o instanceof String);
-
-        builder.comment(" sockets",
-                " ============================================================",
-                " Merges empty sockets into one summary line.",
-                " All-empty: one line replaces the empty rows.",
-                " Mixed: filled gems still render, empty count added below.");
-        MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
-
-        builder.comment(" Hides the APOTH_REMOVE_MARKER literal text.",
-                " Only turn on if the marker is leaking through visibly.",
-                " Can hide the socket UI on socketed items.");
-        HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);
-
-        builder.pop();
-
-        builder.push("rarity_colors");
-
-        builder.comment(" Turns on custom rarity color overrides.",
-                " When false, vanilla Apotheosis colors are used.");
-        RARITY_COLORS_ENABLED = builder.define("rarity_colors_enabled", false);
-
-        builder.comment(" Hex format: 0xRRGGBB");
-        COMMON = builder.define("common", "0xAAAAAA");
-
-        UNCOMMON = builder.define("uncommon", "0x55FF55");
-        RARE = builder.define("rare", "0x55FFFF");
-        EPIC = builder.define("epic", "0xFF55FF");
-        MYTHIC = builder.define("mythic", "0xFFAA00");
-        ANCIENT = builder.define("ancient", "0xFF5555");
-
-        builder.pop();
-
+        // No entries yet. The spec must still be built so registerConfig has something valid.
         SPEC = builder.build();
     }
+
+    private Config() {}
 }
