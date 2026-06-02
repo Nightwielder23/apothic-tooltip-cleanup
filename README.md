@@ -1,12 +1,12 @@
 # Apothic Tooltip Cleanup
 
-A Forge 1.20.1 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and Apothic Attributes out of the box. Everything is configurable, every feature can be turned off.
+A Forge 1.19.2 mod that cleans up the affix and gem tooltips Apotheosis adds to weapons, armor, and raw gems. Compatible with Apotheosis, Apotheotic Additions, and AttributesLib out of the box. Everything is configurable, every feature can be turned off.
 
 ## features
 
 - Truncate affix lists, hold Alt to expand. Configurable to show all, show top N (default 3), or hide all unless Alt is held.
 - Compact gem tooltips on raw gems. Configurable modes: full, compact, ultra, hidden.
-- Hide individual gem categories from "Fits In" lists, useful on packs that disable certain weapon types.
+- Hide individual gem categories from "Fits In" lists, useful on packs that disable specific weapon types.
 - Merge empty sockets on socketed items into one summary line. Mixed sockets are supported: filled gems still render, with the empty count shown below.
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
@@ -54,7 +54,7 @@ The affix source line is always hidden. There is no config option for it.
 
 ### gem display
 
-`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips headers and the Unique tag, keeps the bullets, and removes "level to existing" wording. `ultra` puts categories on one line and bonuses on one line. `hidden` removes all gem info.
+`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips the "Fits In" header and the Unique tag and keeps the category bullets. `ultra` puts every category on one line. `hidden` removes all gem info.
 
 `hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case-insensitive. Works in `full`, `compact`, and `ultra` modes; no effect when `gem_tooltip_mode` is `hidden` since that mode strips all gem info anyway. If every category is hidden, the "Fits In:" header is also dropped. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
 
@@ -70,10 +70,11 @@ The affix source line is always hidden. There is no config option for it.
 
 ## compatibility
 
-- Apotheosis 7.x (soft dependency, the mod does nothing without it)
+- Apotheosis 6.5.2+ (soft dependency, the mod does nothing without it)
 - Apotheotic Additions (optional, supported)
-- Apothic Attributes (optional, supported)
+- AttributesLib (bundled inside Apotheosis 6.x at the `shadows.apotheosis.core.attributeslib` package, not a separate mod)
 - Fallen Gems & Affixes (tested compatible)
+- The "When Socketed In" gem bonus block compaction is 7.x-only and is not available on 1.19.2, since Apotheosis 6.x renders that block differently. The "Fits In" category compaction works normally.
 - May not visually compact empty sockets on packs that ASM-patch Apotheosis's socket renderer beyond what was tested.
 
 ## license
