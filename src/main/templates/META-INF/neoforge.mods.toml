@@ -8,6 +8,8 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="${mod_authors}"
+# Client-only: do not cause a red X when the mod is absent on the server.
+displayTest="IGNORE_SERVER_VERSION"
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]
