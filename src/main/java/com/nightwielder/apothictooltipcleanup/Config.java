@@ -50,10 +50,10 @@ public class Config {
         builder.comment(" Sort order: default, rarity, alphabetical, type.");
         AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "rarity", "alphabetical", "type"));
 
-        builder.comment(" Affix type prefixes (While held, On hit, On block, Passive).",
-                " show = always visible",
-                " alt = hidden unless Alt is held",
-                " delete = always hidden, Alt has no effect");
+        builder.comment(" The affix prefix and suffix Apotheosis adds to the item name (Strengthened, of the Inferno).",
+                " show = full affixed name",
+                " alt = base item name unless Alt is held",
+                " delete = always the base item name");
         AFFIX_PREFIXES_MODE = builder.defineInList("affix_prefixes_mode", HideMode.SHOW, HideMode.OPTIONS);
 
         builder.comment(" Translation key prefixes of affixes to hide.");
@@ -79,7 +79,7 @@ public class Config {
                 " delete = always hidden, Alt has no effect");
         POTION_DESCRIPTIONS_MODE = builder.defineInList("potion_descriptions_mode", HideMode.SHOW, HideMode.OPTIONS);
 
-        builder.comment(" The [⌛ MM:SS] cooldown markers and [Stacking] tags on affix lines.",
+        builder.comment(" The [MM:SS] cooldown markers and [Stacking] tags on affix lines.",
                 " Only the annotations are touched, never the affix text.",
                 " show = always visible",
                 " alt = hidden unless Alt is held",

@@ -12,7 +12,7 @@ import java.util.List;
 
 // Strips the cooldown marker and [Stacking] tag off affix bullets. Apoth attaches them as siblings
 // of the bullet inner component where a string regex never sees them, so the siblings are matched by
-// translation key after a quick English only check for the marker glyphs.
+// translation key.
 public final class AffixMarkerStripper {
     private static final String COOLDOWN_KEY = "affix.apotheosis.cooldown";
     private static final String STACKING_KEY = "affix.apotheosis.stacking";
@@ -30,10 +30,6 @@ public final class AffixMarkerStripper {
         boolean stripped = false;
         for (Component line : tooltip) {
             if (!TooltipMatcher.isBulletPrefix(line)) {
-                continue;
-            }
-            String text = line.getString();
-            if (text.indexOf('⌛') < 0 && !text.contains("[Stacking]")) {
                 continue;
             }
             if (!(line.getContents() instanceof TranslatableContents tc)) {
