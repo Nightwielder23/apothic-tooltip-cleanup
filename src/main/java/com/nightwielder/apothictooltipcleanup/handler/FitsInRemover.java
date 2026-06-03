@@ -206,8 +206,7 @@ public final class FitsInRemover {
             int bulletIndex = i + 1;
             int kept = 0;
             while (bulletIndex < tooltip.size() && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
-                String id = socketBonusCategoryId(tooltip.get(bulletIndex));
-                if (id != null && hidden.contains(id)) {
+                if (socketBonusHidden(tooltip.get(bulletIndex), hidden)) {
                     tooltip.remove(bulletIndex);
                 } else {
                     kept++;
@@ -224,35 +223,35 @@ public final class FitsInRemover {
         }
     }
 
-    // Returns the gem_class id from a Pattern B socket bonus bullet (dot_prefix to "%s: %s" to arg[0]
-    // keyed gem_class.<id>), or null if the bullet is not that shape.
-    private static String socketBonusCategoryId(Component bullet) {
+    // Returns true when a Pattern B socket bonus bullet (dot_prefix to "%s: %s" to arg[0] keyed
+    // gem_class.<id>) belongs to a hidden category, matching either the gem_class id or its rendered name.
+    private static boolean socketBonusHidden(Component bullet, Set<String> hidden) {
         TranslatableContents outer = TooltipMatcher.translatable(bullet);
         if (outer == null || outer.getArgs().length == 0) {
-            return null;
+            return false;
         }
         if (!(outer.getArgs()[0] instanceof Component join)) {
-            return null;
+            return false;
         }
 
         TranslatableContents joinTc = TooltipMatcher.translatable(join);
         if (joinTc == null || joinTc.getArgs().length == 0) {
-            return null;
+            return false;
         }
         if (!(joinTc.getArgs()[0] instanceof Component gemClass)) {
-            return null;
+            return false;
         }
 
         TranslatableContents gcTc = TooltipMatcher.translatable(gemClass);
         if (gcTc == null) {
-            return null;
+            return false;
         }
         String key = gcTc.getKey();
         int at = key.lastIndexOf("gem_class.");
-        if (at < 0) {
-            return null;
+        if (at >= 0 && hidden.contains(key.substring(at + "gem_class.".length()))) {
+            return true;
         }
-        return key.substring(at + "gem_class.".length());
+        return hidden.contains(gemClass.getString());
     }
 
     // ultra mode, one bullet with every category and the "Fits in:" label inline.
