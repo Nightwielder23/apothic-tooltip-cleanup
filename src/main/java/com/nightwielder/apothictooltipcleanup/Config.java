@@ -32,15 +32,6 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue MERGE_EMPTY_SOCKETS;
     public static final ForgeConfigSpec.BooleanValue HIDE_APOTH_MARKER;
 
-    // Rarity colors
-    public static final ForgeConfigSpec.BooleanValue RARITY_COLORS_ENABLED;
-    public static final ForgeConfigSpec.ConfigValue<String> COMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> UNCOMMON;
-    public static final ForgeConfigSpec.ConfigValue<String> RARE;
-    public static final ForgeConfigSpec.ConfigValue<String> EPIC;
-    public static final ForgeConfigSpec.ConfigValue<String> MYTHIC;
-    public static final ForgeConfigSpec.ConfigValue<String> ANCIENT;
-
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -83,7 +74,7 @@ public class Config {
                 " delete = always hidden, Alt has no effect");
         DURABILITY_BONUS_MODE = builder.defineInList("durability_bonus_mode", HideMode.ALT, HideMode.OPTIONS);
 
-        builder.comment(" Potion-style affix descriptions.",
+        builder.comment(" Potion style affix descriptions.",
                 " show = always visible",
                 " alt = hidden unless Alt is held",
                 " delete = always hidden, Alt has no effect");
@@ -100,12 +91,12 @@ public class Config {
                 " ============================================================",
                 " How raw gem tooltips display.",
                 " full = original Apotheosis layout",
-                " compact = strip headers, keep per-bullet categories and bonuses",
+                " compact = strip headers, keep per bullet categories and bonuses",
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));
 
-        builder.comment(" Gem categories to hide from 'Fits In' lists. Case-insensitive.",
+        builder.comment(" Gem categories to hide from 'Fits In' lists. Case insensitive.",
                 " Example: [\"Bows\", \"Crossbows\"] to hide ranged weapons.",
                 " No effect when gem_tooltip_mode is hidden, since that drops all gem info anyway.");
         HIDDEN_GEM_CATEGORIES = builder.defineListAllowEmpty("hidden_gem_categories", Collections.emptyList(), o -> o instanceof String);
@@ -113,7 +104,7 @@ public class Config {
         builder.comment(" sockets",
                 " ============================================================",
                 " Merges empty sockets into one summary line.",
-                " All-empty: one line replaces the empty rows.",
+                " All empty: one line replaces the empty rows.",
                 " Mixed: filled gems still render, empty count added below.");
         MERGE_EMPTY_SOCKETS = builder.define("merge_empty_sockets", true);
 
@@ -121,23 +112,6 @@ public class Config {
                 " Only turn on if the marker is leaking through visibly.",
                 " Can hide the socket UI on socketed items.");
         HIDE_APOTH_MARKER = builder.define("hide_apoth_marker", false);
-
-        builder.pop();
-
-        builder.push("rarity_colors");
-
-        builder.comment(" Turns on custom rarity color overrides.",
-                " When false, vanilla Apotheosis colors are used.");
-        RARITY_COLORS_ENABLED = builder.define("rarity_colors_enabled", false);
-
-        builder.comment(" Hex format: 0xRRGGBB");
-        COMMON = builder.define("common", "0xAAAAAA");
-
-        UNCOMMON = builder.define("uncommon", "0x55FF55");
-        RARE = builder.define("rare", "0x55FFFF");
-        EPIC = builder.define("epic", "0xFF55FF");
-        MYTHIC = builder.define("mythic", "0xFFAA00");
-        ANCIENT = builder.define("ancient", "0xFF5555");
 
         builder.pop();
 

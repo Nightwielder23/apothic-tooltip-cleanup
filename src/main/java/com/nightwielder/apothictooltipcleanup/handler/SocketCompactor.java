@@ -19,9 +19,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-// Merges empty sockets on the icon-render path, where Apotheosis has already inserted its
-// SocketComponent. We reach into it by reflection to avoid a compile-time dep. With 2+ empty
-// sockets, all-empty collapses to one text line. mixed keeps the filled gems and adds a summary below.
+// Merges empty sockets on the icon render path where Apotheosis inserts its SocketComponent, reached
+// by reflection to avoid a compile time dependency. With two or more empty sockets, all empty
+// collapses to one text line and mixed keeps the filled gems with a summary below.
 @Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SocketCompactor {
     private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.adventure.client.SocketTooltipRenderer$SocketComponent";
@@ -35,26 +35,37 @@ public final class SocketCompactor {
 
     private SocketCompactor() {}
 
-    // Behavior:
-    //  - collapses 2+ empty sockets in Apotheosis's socket component into one summary line.
-    // Parameters:
-    //  - event: the gather-components event, edited in place.
+    // Collapses two or more empty sockets in Apotheosis's socket component into one summary line.
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onGatherComponents(RenderTooltipEvent.GatherComponents event) {
-        if (!Config.MERGE_EMPTY_SOCKETS.get()) return;
-        if (reflectionFailed) return;
+        if (!Config.MERGE_EMPTY_SOCKETS.get()) {
+            return;
+        }
+        if (reflectionFailed) {
+            return;
+        }
 
         List<Either<FormattedText, TooltipComponent>> elements = event.getTooltipElements();
         for (int i = 0; i < elements.size(); i++) {
             TooltipComponent tc = elements.get(i).right().orElse(null);
-            if (tc == null) continue;
-            if (!SOCKET_COMPONENT_FQN.equals(tc.getClass().getName())) continue;
+            if (tc == null) {
+                continue;
+            }
+            if (!SOCKET_COMPONENT_FQN.equals(tc.getClass().getName())) {
+                continue;
+            }
 
             try {
-                if (gemsAccessor == null) gemsAccessor = tc.getClass().getMethod("gems");
-                if (socketedAccessor == null) socketedAccessor = tc.getClass().getMethod("socketed");
+                if (gemsAccessor == null) {
+                    gemsAccessor = tc.getClass().getMethod("gems");
+                }
+                if (socketedAccessor == null) {
+                    socketedAccessor = tc.getClass().getMethod("socketed");
+                }
                 Object gems = gemsAccessor.invoke(tc);
-                if (!(gems instanceof List<?> list)) continue;
+                if (!(gems instanceof List<?> list)) {
+                    continue;
+                }
 
                 List<Object> valid = new ArrayList<>();
                 int empty = 0;
@@ -63,14 +74,18 @@ public final class SocketCompactor {
                         empty++;
                         continue;
                     }
-                    if (isValidAccessor == null) isValidAccessor = inst.getClass().getMethod("isValid");
+                    if (isValidAccessor == null) {
+                        isValidAccessor = inst.getClass().getMethod("isValid");
+                    }
                     if ((boolean) isValidAccessor.invoke(inst)) {
                         valid.add(inst);
                     } else {
                         empty++;
                     }
                 }
-                if (empty < 2) continue;
+                if (empty < 2) {
+                    continue;
+                }
 
                 Component summary = Component.literal("◇ x" + empty + " empty sockets")
                         .withStyle(ChatFormatting.GRAY);
@@ -80,7 +95,7 @@ public final class SocketCompactor {
                     continue;
                 }
 
-                // mixed: rebuild with only the filled gems. add the summary line after.
+                // mixed: rebuild with only the filled gems, then add the summary line after.
                 if (socketedGemsCtor == null) {
                     socketedGemsCtor = gems.getClass().getConstructor(List.class);
                 }

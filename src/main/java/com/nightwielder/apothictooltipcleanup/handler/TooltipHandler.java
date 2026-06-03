@@ -3,7 +3,6 @@ package com.nightwielder.apothictooltipcleanup.handler;
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
 import com.nightwielder.apothictooltipcleanup.Config;
 import com.nightwielder.apothictooltipcleanup.util.ApotheosisDetector;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,20 +13,21 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
-// Client tooltip handler. Runs each item tooltip through the cleanup handlers, but only when
+// Client tooltip handler that runs each item tooltip through the cleanup handlers only when
 // Apotheosis is loaded. Lowest priority so other mods have already run.
 @Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TooltipHandler {
 
-    // Behavior:
-    //  - runs each handler over the tooltip in order. AltExpandHandler adds the prompt at the end.
-    // Parameters:
-    //  - event: the tooltip event, edited in place.
+    // Runs each handler over the tooltip in order. AltExpandHandler adds the prompt at the end.
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if (stack.isEmpty()) return;
-        if (!ApotheosisDetector.isApotheosisLoaded()) return;
+        if (stack.isEmpty()) {
+            return;
+        }
+        if (!ApotheosisDetector.isApotheosisLoaded()) {
+            return;
+        }
 
         List<Component> tooltip = event.getToolTip();
 
@@ -61,36 +61,8 @@ public class TooltipHandler {
 
         AltExpandHandler.apply(tooltip, anyHidden);
 
-        if (Config.RARITY_COLORS_ENABLED.get()) {
-            String hex = rarityHex(stack);
-            if (hex != null) {
-                RarityColorOverride.apply(stack, tooltip, hex);
-            }
-        }
-
         if (Config.HIDE_APOTH_MARKER.get()) {
             MarkerCleaner.apply(tooltip);
         }
-    }
-
-    // Hex color for the item's rarity, or null if it has none. Rarity is in the affix_data NBT.
-    // Unknown rarities fall back to ancient.
-    private static String rarityHex(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains("affix_data")) return null;
-        String rarity = tag.getCompound("affix_data").getString("rarity");
-        if (rarity.isEmpty()) return null;
-        int colon = rarity.indexOf(':');
-        if (colon >= 0) {
-            rarity = rarity.substring(colon + 1);
-        }
-        return switch (rarity) {
-            case "common" -> Config.COMMON.get();
-            case "uncommon" -> Config.UNCOMMON.get();
-            case "rare" -> Config.RARE.get();
-            case "epic" -> Config.EPIC.get();
-            case "mythic" -> Config.MYTHIC.get();
-            default -> Config.ANCIENT.get();
-        };
     }
 }
