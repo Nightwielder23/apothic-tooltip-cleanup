@@ -5,13 +5,15 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-// Removes any line still showing the raw APOTH_SOCKET_MARKER text. Off by default. Only needed if
+// Removes any line still showing the raw APOTH_SOCKET_MARKER text. Off by default, only needed if
 // Apotheosis lets the marker leak through.
 public final class MarkerCleaner {
     private MarkerCleaner() {}
 
     public static void apply(List<Component> tooltip) {
-        if (!Config.HIDE_APOTH_MARKER.get()) return;
+        if (!Config.HIDE_APOTH_MARKER.get()) {
+            return;
+        }
         tooltip.removeIf(c -> c.getString().contains("APOTH_SOCKET_MARKER"));
     }
 }

@@ -3,7 +3,7 @@ package com.nightwielder.apothictooltipcleanup.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
-// Helpers for reading Apotheosis tooltip lines and figuring out what kind of line each one is.
+// Helpers for reading Apotheosis tooltip lines and classifying each one.
 public final class TooltipMatcher {
     private static final String[] APOTH_PREFIXES = {
             "apotheosis:",
@@ -19,11 +19,26 @@ public final class TooltipMatcher {
 
     private TooltipMatcher() {}
 
-    // The line's translation key, or null if it isn't a translatable component.
+    // Returns the line's translation key, or null if it is not a translatable component.
     public static String getKey(Component component) {
-        if (component == null) return null;
+        TranslatableContents tc = translatable(component);
+        return tc == null ? null : tc.getKey();
+    }
+
+    // Returns the component's translatable contents, or null. Some Apotheosis lines append the
+    // translatable onto an empty base, so the top level contents is a literal and the key sits on the
+    // first sibling. The siblings are checked too.
+    public static TranslatableContents translatable(Component component) {
+        if (component == null) {
+            return null;
+        }
         if (component.getContents() instanceof TranslatableContents tc) {
-            return tc.getKey();
+            return tc;
+        }
+        for (Component sibling : component.getSiblings()) {
+            if (sibling.getContents() instanceof TranslatableContents tc) {
+                return tc;
+            }
         }
         return null;
     }
@@ -33,39 +48,46 @@ public final class TooltipMatcher {
         return key != null && key.startsWith(prefix);
     }
 
-    // A bullet line. Apoth 8.x wraps these in dot_prefix.
+    // Returns true for a bullet line, which Apoth wraps in dot_prefix.
     public static boolean isBulletPrefix(Component component) {
         return keyStartsWith(component, "text.apotheosis.dot_prefix");
     }
 
-    // Behavior:
-    //  - tells affix bullets from gem bonus bullets. gem bonuses have a ":" before any other punctuation.
-    // Parameters:
-    //  - component: a tooltip line
-    // Returns:
-    //  - true if it looks like an affix line
+    // Tells affix bullets from gem bonus bullets. Gem bonuses have a ":" before any other punctuation.
     public static boolean isAffixLine(Component component) {
-        if (!isBulletPrefix(component)) return false;
+        if (!isBulletPrefix(component)) {
+            return false;
+        }
         String text = component.getString();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (c == ':') return false;
-            if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';') return true;
+            if (c == ':') {
+                return false;
+            }
+            if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';') {
+                return true;
+            }
         }
         return true;
     }
 
-    // True if the line or any of its siblings came from Apotheosis or an add-on.
+    // Returns true if the line or any sibling came from Apotheosis or a supported add-on.
     public static boolean isApotheosisLine(Component component) {
-        if (component == null) return false;
+        if (component == null) {
+            return false;
+        }
         String key = getKey(component);
         if (key != null) {
             for (String prefix : APOTH_PREFIXES) {
-                if (key.startsWith(prefix)) return true;
+                if (key.startsWith(prefix)) {
+                    return true;
+                }
             }
         }
         for (Component sibling : component.getSiblings()) {
-            if (isApotheosisLine(sibling)) return true;
+            if (isApotheosisLine(sibling)) {
+                return true;
+            }
         }
         return false;
     }

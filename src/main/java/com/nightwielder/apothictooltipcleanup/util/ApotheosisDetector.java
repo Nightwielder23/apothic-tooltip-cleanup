@@ -2,7 +2,7 @@ package com.nightwielder.apothictooltipcleanup.util;
 
 import net.neoforged.fml.ModList;
 
-// Checks whether the optional mods we hook into are installed. Cached since the mod list never
+// Checks whether the optional integration mods are installed. Cached since the mod list never
 // changes after load.
 public final class ApotheosisDetector {
     private static Boolean apotheosisLoaded;
