@@ -35,7 +35,7 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `affix_sort_order` is one of `default`, `rarity`, `alphabetical`, `type`.
 
-`affix_prefixes_mode` controls the affix prefix and suffix Apotheosis adds to the item name, like "Strengthened" or "of the Inferno". `show` (default) keeps the full name, `alt` shows the base item name unless Alt is held, `delete` always shows the base item name.
+`affix_prefixes_mode` controls the affix prefix and suffix Apotheosis adds to the item name, like "Strengthened" or "of the Inferno". `show` (default) keeps the full affixed name. `prefix` shows only the base item name while keeping the affix rarity color and italics. `vanilla` shows the base item name with plain styling. `prefix` and `vanilla` only touch Apotheosis's generated name; an item renamed in an anvil is left as is.
 
 `hidden_affix_ids` is a list of translation key prefixes for affixes you want hidden entirely.
 
