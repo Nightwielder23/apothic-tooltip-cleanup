@@ -3,6 +3,8 @@ package com.nightwielder.apothictooltipcleanup.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
+import java.util.List;
+
 // Helpers for reading Apotheosis tooltip lines and classifying each one.
 public final class TooltipMatcher {
     private static final String[] APOTH_PREFIXES = {
@@ -70,6 +72,19 @@ public final class TooltipMatcher {
             }
         }
         return true;
+    }
+
+    // Returns true for a raw gem tooltip. full mode keeps the socketable_into/fits_in key and compact
+    // rewrites it to a "Fits in:" literal, so match either to skip gems.
+    public static boolean isGem(List<Component> tooltip) {
+        for (Component line : tooltip) {
+            if (keyStartsWith(line, "text.apotheosis.socketable_into")
+                    || keyStartsWith(line, "text.apotheosis.fits_in")
+                    || "Fits in:".equals(line.getString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Returns true if the line or any sibling came from Apotheosis or a supported add-on.

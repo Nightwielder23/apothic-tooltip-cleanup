@@ -26,7 +26,7 @@ public final class AltExpandHandler {
         int insertIndex = -1;
 
         String mode = Config.AFFIX_DISPLAY_MODE.get();
-        if (!"all".equalsIgnoreCase(mode) && !isGem(tooltip)) {
+        if (!"all".equalsIgnoreCase(mode) && !TooltipMatcher.isGem(tooltip)) {
             boolean altOnly = "alt_only".equalsIgnoreCase(mode);
             int visible = altOnly ? 0 : Math.max(0, Config.AFFIX_VISIBLE_COUNT.get());
 
@@ -90,18 +90,5 @@ public final class AltExpandHandler {
             return lastAffix + 1;
         }
         return attributeBlock;
-    }
-
-    // Returns true for a raw gem tooltip. full mode keeps the socketable_into/fits_in key and compact
-    // rewrites it to a "Fits in:" literal, so match either to skip gems.
-    private static boolean isGem(List<Component> tooltip) {
-        for (Component line : tooltip) {
-            if (TooltipMatcher.keyStartsWith(line, "text.apotheosis.socketable_into")
-                    || TooltipMatcher.keyStartsWith(line, "text.apotheosis.fits_in")
-                    || "Fits in:".equals(line.getString())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
