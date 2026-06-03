@@ -50,7 +50,7 @@ public class TooltipHandler {
         // each handler returns true if it hid something Alt can reveal. OR them together so
         // AltExpandHandler knows whether to add the prompt.
         boolean anyHidden = false;
-        anyHidden |= PrefixCleaner.apply(tooltip);
+        anyHidden |= PrefixCleaner.apply(stack, tooltip);
         anyHidden |= SourceLineRemover.apply(tooltip);
         anyHidden |= SummarizationDisabler.apply(tooltip);
         if (ApotheosisDetector.isApothicAttributesLoaded()) {

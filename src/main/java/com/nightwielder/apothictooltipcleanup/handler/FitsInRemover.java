@@ -21,6 +21,10 @@ public final class FitsInRemover {
     // teal blue Apotheosis uses for the Fits In header and category bullets
     private static final int FITS_IN_COLOR = 720650;
 
+    // A category in a Fits In bullet: its rendered name, its Apoth id from the translation key (null
+    // when the key shape is unexpected), and the original component so a filtered bullet stays translatable.
+    private record Category(String name, String id, Component component) {}
+
     // Output order for ultra mode's category line: weapons, armor, mining tools, then Other. Within a
     // group, input order is kept.
     private static final LinkedHashMap<String, Set<String>> CATEGORY_GROUPS = new LinkedHashMap<>();
@@ -82,7 +86,7 @@ public final class FitsInRemover {
 
             if (isFits) {
                 if (ultra) {
-                    List<String> names = sortByGroup(filterHidden(extractCategoryNames(tooltip, i + 1, afterBullets)));
+                    List<String> names = sortByGroup(namesOf(filterHidden(extractCategoriesRange(tooltip, i + 1, afterBullets))));
                     removeRange(tooltip, i, afterBullets);
                     if (!names.isEmpty()) {
                         tooltip.add(i, joinedCategoryBullet(String.join(", ", names)));
@@ -96,20 +100,19 @@ public final class FitsInRemover {
                 i++;
                 int bulletIndex = i;
                 while (bulletIndex < afterBullets && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
-                    String inner = extractBulletText(tooltip.get(bulletIndex));
-                    if (inner == null || inner.isEmpty()) {
+                    List<Category> cats = extractCategories(tooltip.get(bulletIndex));
+                    if (cats.isEmpty()) {
                         bulletIndex++;
                         continue;
                     }
-                    List<String> names = splitCategories(inner);
-                    List<String> kept = filterHidden(names);
-                    if (kept.size() == names.size()) {
+                    List<Category> kept = filterHidden(cats);
+                    if (kept.size() == cats.size()) {
                         bulletIndex++;
                     } else if (kept.isEmpty()) {
                         tooltip.remove(bulletIndex);
                         afterBullets--;
                     } else {
-                        tooltip.set(bulletIndex, categoryBullet(String.join(", ", kept)));
+                        tooltip.set(bulletIndex, rebuildCategoryBullet(kept));
                         bulletIndex++;
                     }
                 }
@@ -163,8 +166,7 @@ public final class FitsInRemover {
     // full mode keeps Apoth's layout, so walk each Fits In block and drop hidden categories. A bullet
     // with nothing left is removed, and so is a header with no bullets under it.
     private static void filterFullCategories(List<Component> tooltip) {
-        List<? extends String> hiddenCategories = Config.HIDDEN_GEM_CATEGORIES.get();
-        if (hiddenCategories == null || hiddenCategories.isEmpty()) {
+        if (hiddenSet().isEmpty()) {
             return;
         }
 
@@ -186,20 +188,19 @@ public final class FitsInRemover {
             }
 
             while (bulletIndex < afterBullets) {
-                String inner = extractBulletText(tooltip.get(bulletIndex));
-                if (inner == null || inner.isEmpty()) {
+                List<Category> cats = extractCategories(tooltip.get(bulletIndex));
+                if (cats.isEmpty()) {
                     bulletIndex++;
                     continue;
                 }
-                List<String> names = splitCategories(inner);
-                List<String> kept = filterHidden(names);
-                if (kept.size() == names.size()) {
+                List<Category> kept = filterHidden(cats);
+                if (kept.size() == cats.size()) {
                     bulletIndex++;
                 } else if (kept.isEmpty()) {
                     tooltip.remove(bulletIndex);
                     afterBullets--;
                 } else {
-                    tooltip.set(bulletIndex, categoryBullet(String.join(", ", kept)));
+                    tooltip.set(bulletIndex, rebuildCategoryBullet(kept));
                     bulletIndex++;
                 }
             }
@@ -233,8 +234,7 @@ public final class FitsInRemover {
             int bulletIndex = i + 1;
             int kept = 0;
             while (bulletIndex < tooltip.size() && TooltipMatcher.isBulletPrefix(tooltip.get(bulletIndex))) {
-                String id = socketBonusCategoryId(tooltip.get(bulletIndex));
-                if (id != null && hidden.contains(id)) {
+                if (socketBonusHidden(tooltip.get(bulletIndex), hidden)) {
                     tooltip.remove(bulletIndex);
                 } else {
                     kept++;
@@ -251,35 +251,35 @@ public final class FitsInRemover {
         }
     }
 
-    // Returns the gem_class id from a Pattern B socket bonus bullet (dot_prefix to "%s: %s" to arg[0]
-    // keyed gem_class.<id>), or null if the bullet is not that shape.
-    private static String socketBonusCategoryId(Component bullet) {
+    // Returns true when a Pattern B socket bonus bullet (dot_prefix to "%s: %s" to arg[0] keyed
+    // gem_class.<id>) belongs to a hidden category, matching either the gem_class id or its rendered name.
+    private static boolean socketBonusHidden(Component bullet, Set<String> hidden) {
         TranslatableContents outer = TooltipMatcher.translatable(bullet);
         if (outer == null || outer.getArgs().length == 0) {
-            return null;
+            return false;
         }
         if (!(outer.getArgs()[0] instanceof Component join)) {
-            return null;
+            return false;
         }
 
         TranslatableContents joinTc = TooltipMatcher.translatable(join);
         if (joinTc == null || joinTc.getArgs().length == 0) {
-            return null;
+            return false;
         }
         if (!(joinTc.getArgs()[0] instanceof Component gemClass)) {
-            return null;
+            return false;
         }
 
         TranslatableContents gcTc = TooltipMatcher.translatable(gemClass);
         if (gcTc == null) {
-            return null;
+            return false;
         }
         String key = gcTc.getKey();
         int at = key.lastIndexOf("gem_class.");
-        if (at < 0) {
-            return null;
+        if (at >= 0 && hidden.contains(key.substring(at + "gem_class.".length()))) {
+            return true;
         }
-        return key.substring(at + "gem_class.".length());
+        return hidden.contains(gemClass.getString());
     }
 
     // Returns the hidden_gem_categories config as a case insensitive set, empty if unset.
@@ -350,16 +350,65 @@ public final class FitsInRemover {
         return sorted;
     }
 
-    private static List<String> extractCategoryNames(List<Component> tooltip, int from, int toExclusive) {
-        List<String> names = new ArrayList<>();
-        for (int k = from; k < toExclusive; k++) {
-            String inner = extractBulletText(tooltip.get(k));
-            if (inner == null || inner.isEmpty()) {
-                continue;
-            }
-            names.addAll(splitCategories(inner));
+    // Pulls each category out of a Fits In dot_prefix bullet as a name and Apoth id. Apoth holds the
+    // categories as the args of an inner translatable, one component per category keyed
+    // text.apotheosis.category.<id>.plural, falling back to splitting the rendered text when the shape
+    // is unexpected such as the "Anything" line or a plain literal.
+    private static List<Category> extractCategories(Component bullet) {
+        TranslatableContents outer = TooltipMatcher.translatable(bullet);
+        if (outer == null || outer.getArgs().length == 0) {
+            return Collections.emptyList();
         }
-        return names;
+        if (!(outer.getArgs()[0] instanceof Component inner)) {
+            return Collections.emptyList();
+        }
+
+        TranslatableContents innerTc = TooltipMatcher.translatable(inner);
+        if (innerTc != null && innerTc.getArgs().length > 0) {
+            List<Category> out = new ArrayList<>();
+            for (Object arg : innerTc.getArgs()) {
+                if (arg instanceof Component cat) {
+                    out.add(new Category(cat.getString(), categoryId(cat), cat));
+                } else {
+                    String name = String.valueOf(arg);
+                    out.add(new Category(name, null, Component.literal(name)));
+                }
+            }
+            return out;
+        }
+
+        List<Category> out = new ArrayList<>();
+        for (String name : splitCategories(inner.getString())) {
+            out.add(new Category(name, null, Component.literal(name)));
+        }
+        return out;
+    }
+
+    private static List<Category> extractCategoriesRange(List<Component> tooltip, int from, int toExclusive) {
+        List<Category> out = new ArrayList<>();
+        for (int k = from; k < toExclusive; k++) {
+            out.addAll(extractCategories(tooltip.get(k)));
+        }
+        return out;
+    }
+
+    // Returns the Apoth category id from a category name component's key (text.apotheosis.category.<id>.plural),
+    // so config values like "chestplate" match regardless of the rendered "Chestplates" text or locale.
+    private static String categoryId(Component cat) {
+        TranslatableContents tc = TooltipMatcher.translatable(cat);
+        if (tc == null) {
+            return null;
+        }
+        String key = tc.getKey();
+        int at = key.lastIndexOf("category.");
+        if (at < 0) {
+            return null;
+        }
+        String id = key.substring(at + "category.".length());
+        if (id.endsWith(".plural")) {
+            id = id.substring(0, id.length() - ".plural".length());
+        }
+        return id;
     }
 
     // Splits "Swords, Bows, ..." into trimmed, non empty names.
@@ -374,27 +423,46 @@ public final class FitsInRemover {
         return names;
     }
 
-    // Drops any names listed in hidden_gem_categories, case insensitive.
-    private static List<String> filterHidden(List<String> categories) {
-        List<? extends String> hidden = Config.HIDDEN_GEM_CATEGORIES.get();
-        if (hidden == null || hidden.isEmpty()) {
+    // Keeps the categories the user has not hidden, matching the Apoth id from the translation key (so
+    // config can use ids like "chestplate") and the rendered name (so "Chestplates" works too).
+    private static List<Category> filterHidden(List<Category> categories) {
+        Set<String> hidden = hiddenSet();
+        if (hidden.isEmpty()) {
             return categories;
         }
-        Set<String> hiddenSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        hiddenSet.addAll(hidden);
-        List<String> filtered = new ArrayList<>(categories.size());
-        for (String name : categories) {
-            if (!hiddenSet.contains(name)) {
-                filtered.add(name);
+        List<Category> kept = new ArrayList<>(categories.size());
+        for (Category cat : categories) {
+            boolean hide = (cat.id() != null && hidden.contains(cat.id())) || hidden.contains(cat.name());
+            if (!hide) {
+                kept.add(cat);
             }
         }
-        return filtered;
+        return kept;
     }
 
-    // Rebuilds a Fits In category bullet with the teal styling after dropping hidden categories, used
-    // by both compact and full mode.
-    private static Component categoryBullet(String text) {
-        return Component.translatable("text.apotheosis.dot_prefix", Component.literal(text))
+    private static List<String> namesOf(List<Category> categories) {
+        List<String> names = new ArrayList<>(categories.size());
+        for (Category cat : categories) {
+            names.add(cat.name());
+        }
+        return names;
+    }
+
+    // Rebuilds a Fits In category bullet from the kept categories after dropping hidden ones. Apoth
+    // joins the categories through a "%s, %s" translatable, so reconstruct that with one %s per kept
+    // category and the original category components as args, keeping them translatable.
+    private static Component rebuildCategoryBullet(List<Category> kept) {
+        StringBuilder fmt = new StringBuilder();
+        Object[] args = new Object[kept.size()];
+        for (int i = 0; i < kept.size(); i++) {
+            fmt.append("%s");
+            if (i < kept.size() - 1) {
+                fmt.append(", ");
+            }
+            args[i] = kept.get(i).component();
+        }
+        Component join = Component.translatable(fmt.toString(), args);
+        return Component.translatable("text.apotheosis.dot_prefix", join)
                 .withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
 
