@@ -9,20 +9,18 @@ import net.minecraft.network.chat.Component;
 import java.util.Iterator;
 import java.util.List;
 
-// Trims the affix list for top_n / alt_only mode and adds the "Hold Alt for full details" prompt.
-// Alt is the expand key since Shift triggers quick-move and Ctrl clashes with other tooltip mods.
+// Trims the affix list for top_n and alt_only mode, then adds the "Hold Alt for full details"
+// prompt. Alt is the expand key since Shift triggers quick move and Ctrl clashes with other tooltip mods.
 public final class AltExpandHandler {
     private AltExpandHandler() {}
 
-    // Behavior:
-    //  - drops affixes past the visible count outside "all" mode. adds the prompt if anything hid.
-    //    skips gem tooltips so the budget doesn't eat gem categories.
-    // Parameters:
-    //  - tooltip: the lines being shown, edited in place
-    //  - anyHidden: whether an earlier handler already hid something Alt can reveal
+    // Drops affixes past the visible count outside "all" mode and adds the prompt if anything hid,
+    // skipping gem tooltips so the budget does not eat gem categories.
     public static void apply(List<Component> tooltip, boolean anyHidden) {
         // Alt down means every hide handler no-oped, so everything already shows.
-        if (Screen.hasAltDown()) return;
+        if (Screen.hasAltDown()) {
+            return;
+        }
 
         boolean hidden = anyHidden;
         int insertIndex = -1;
@@ -38,14 +36,16 @@ public final class AltExpandHandler {
             while (it.hasNext()) {
                 Component line = it.next();
                 if (DurabilityHider.isDurability(line)) {
-                    // owned by DurabilityHider, don't count it as an affix
+                    // owned by DurabilityHider, do not count it as an affix
                     liveIndex++;
                 } else if (TooltipMatcher.isAffixLine(line)) {
                     if (kept < visible) {
                         kept++;
                         liveIndex++;
                     } else {
-                        if (insertIndex < 0) insertIndex = liveIndex;
+                        if (insertIndex < 0) {
+                            insertIndex = liveIndex;
+                        }
                         it.remove();
                         hidden = true;
                     }
@@ -55,10 +55,12 @@ public final class AltExpandHandler {
             }
         }
 
-        if (!hidden) return;
+        if (!hidden) {
+            return;
+        }
 
-        // in "all" mode nothing set insertIndex, so anchor the prompt after the last affix.
-        // otherwise a tall tooltip pushes it off the bottom of the screen.
+        // "all" mode does not set insertIndex, so the prompt would default to the end of a long
+        // tooltip and fall off screen. Anchor it right after the last affix instead.
         if (insertIndex < 0) {
             insertIndex = affixInsertIndex(tooltip);
         }
@@ -71,7 +73,7 @@ public final class AltExpandHandler {
         }
     }
 
-    // Index just past the last affix line. Falls back to the attribute block (item.modifiers.*),
+    // Returns the index past the last affix line, falling back to the attribute block (item.modifiers.*)
     // then -1 so the caller appends.
     private static int affixInsertIndex(List<Component> tooltip) {
         int lastAffix = -1;
@@ -84,7 +86,9 @@ public final class AltExpandHandler {
                 attributeBlock = i;
             }
         }
-        if (lastAffix >= 0) return lastAffix + 1;
+        if (lastAffix >= 0) {
+            return lastAffix + 1;
+        }
         return attributeBlock;
     }
 }

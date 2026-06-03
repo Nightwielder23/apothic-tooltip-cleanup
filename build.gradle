@@ -69,7 +69,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Apotheosis 6.5.2 + Placebo 7.4.0 (1.19.2). compileOnly: the mod is a client-side soft
+    // Apotheosis 6.5.2 + Placebo 7.4.0 (1.19.2). compileOnly: the mod is a client side soft
     // dependency and resolves Apoth at runtime. Group id is "shadows" on 6.x.
     compileOnly fg.deobf("shadows:Apotheosis:${minecraft_version}-${apotheosis_version}")
     compileOnly fg.deobf("shadows:Placebo:${minecraft_version}-${placebo_version}")

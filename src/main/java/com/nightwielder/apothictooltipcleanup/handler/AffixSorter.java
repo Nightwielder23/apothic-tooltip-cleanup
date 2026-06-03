@@ -7,14 +7,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-// Reorders the affix lines in place. Pulls them out, sorts them, and writes them back into the
+// Reorders the affix lines in place, pulling them out, sorting them, and writing them back into the
 // same slots.
 public final class AffixSorter {
     private AffixSorter() {}
 
-    // TODO: multi-line affixes are treated as single rows in v1.0. Single-line is the common case.
+    // TODO: multi line affixes are treated as single rows. Single line is the common case.
     public static void apply(List<Component> tooltip, String sortOrder) {
-        if (sortOrder == null || "default".equals(sortOrder)) return;
+        if (sortOrder == null || "default".equals(sortOrder)) {
+            return;
+        }
 
         List<Integer> indices = new ArrayList<>();
         List<Component> affixLines = new ArrayList<>();
@@ -25,10 +27,14 @@ public final class AffixSorter {
                 affixLines.add(line);
             }
         }
-        if (affixLines.size() < 2) return;
+        if (affixLines.size() < 2) {
+            return;
+        }
 
         Comparator<Component> comparator = comparatorFor(sortOrder);
-        if (comparator == null) return;
+        if (comparator == null) {
+            return;
+        }
 
         affixLines.sort(comparator);
         for (int i = 0; i < indices.size(); i++) {
@@ -36,8 +42,7 @@ public final class AffixSorter {
         }
     }
 
-    // rarity and type live in the translation args and aren't parsed yet.
-    // all three sort alphabetically for now.
+    // rarity and type live in translation args that are not parsed yet, so all three sort alphabetically.
     private static Comparator<Component> comparatorFor(String sortOrder) {
         return switch (sortOrder) {
             case "alphabetical", "rarity", "type" ->
