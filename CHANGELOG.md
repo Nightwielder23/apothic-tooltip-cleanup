@@ -2,19 +2,23 @@
 
 All notable changes are listed here, newest first.
 
-## v1.3.0 pending
+## v1.2.2 2026-06-03
+
+### Added
+- added displayTest IGNORE_SERVER_VERSION to mods.toml
 
 ### Changed
-- redesigned the affix prefix and suffix handling into the affix_prefixes_mode setting (show, prefix, vanilla)
-- unified gem category filtering across the full, compact, and ultra gem modes
+- unified gem category filtering across the full, compact, and ultra gem modes, accepting id and name forms
+- moved isGem to TooltipMatcher
+- aligned CI triggers to push and pull_request
 
 ### Removed
 - removed the rarity color override
 
 ### Fixed
-- fixed prefix deletion not replacing the affixed item name
 - fixed gem bonus category filtering on socketed items
 - fixed garbled marker characters on socket lines
+- fixed prefix deletion not replacing the affixed item name
 
 ## v1.2.1 2026-05-29
 
