@@ -52,9 +52,9 @@ public class Config {
 
         builder.comment(" The affix prefix and suffix Apotheosis adds to the item name (Strengthened, of the Inferno).",
                 " show = full affixed name",
-                " prefix = base item name, keeping the affix rarity color and italics",
-                " vanilla = base item name with plain styling");
-        AFFIX_PREFIXES_MODE = builder.defineInList("affix_prefixes_mode", "show", Arrays.asList("show", "prefix", "vanilla"));
+                " alt = base item name unless Alt is held",
+                " delete = always the base item name");
+        AFFIX_PREFIXES_MODE = builder.defineInList("affix_prefixes_mode", HideMode.SHOW, HideMode.OPTIONS);
 
         builder.comment(" Translation key prefixes of affixes to hide.");
         HIDDEN_AFFIX_IDS = builder.defineListAllowEmpty("hidden_affix_ids", List.of(), () -> "", o -> o instanceof String);
