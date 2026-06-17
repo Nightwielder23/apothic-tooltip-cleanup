@@ -47,8 +47,8 @@ public class Config {
         builder.comment(" Affixes shown when mode is top_n.");
         AFFIX_VISIBLE_COUNT = builder.defineInRange("affix_visible_count", 3, 0, 99);
 
-        builder.comment(" Sort order: default, rarity, alphabetical, type.");
-        AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "rarity", "alphabetical", "type"));
+        builder.comment(" Sort order: default or alphabetical.");
+        AFFIX_SORT_ORDER = builder.defineInList("affix_sort_order", "default", Arrays.asList("default", "alphabetical"));
 
         builder.comment(" The affix prefix and suffix Apotheosis adds to the item name (Strengthened, of the Inferno).",
                 " show = full affixed name",

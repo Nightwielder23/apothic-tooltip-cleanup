@@ -33,7 +33,7 @@ The "Hold Alt for full details" prompt also appears when other handlers hide con
 
 `affix_visible_count` is the N for `top_n` mode. Default 3.
 
-`affix_sort_order` is one of `default`, `rarity`, `alphabetical`, `type`.
+`affix_sort_order` is one of `default` or `alphabetical`.
 
 `affix_prefixes_mode` controls the affix prefix and suffix Apotheosis adds to the item name, like "Strengthened" or "of the Inferno". `show` (default) keeps the full name, `alt` shows the base item name unless Alt is held, `delete` always shows the base item name.
 

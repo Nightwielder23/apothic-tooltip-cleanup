@@ -42,11 +42,9 @@ public final class AffixSorter {
         }
     }
 
-    // rarity and type live in translation args that are not parsed yet, so all three sort alphabetically.
     private static Comparator<Component> comparatorFor(String sortOrder) {
         return switch (sortOrder) {
-            case "alphabetical", "rarity", "type" ->
-                    Comparator.comparing(c -> c.getString(), String.CASE_INSENSITIVE_ORDER);
+            case "alphabetical" -> Comparator.comparing(c -> c.getString(), String.CASE_INSENSITIVE_ORDER);
             default -> null;
         };
     }

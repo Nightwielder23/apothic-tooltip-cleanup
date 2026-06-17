@@ -127,13 +127,10 @@ public final class FitsInRemover {
             // isBonusHeader from here on.
             if (compact) {
                 for (int k = i + 1; k < afterBullets; k++) {
-                    String inner = extractBulletText(tooltip.get(k));
-                    if (inner == null) {
-                        continue;
-                    }
-                    tooltip.set(k, goldBullet(stripExisting(inner)));
+                    tooltip.set(k, stripExistingBonus(tooltip.get(k)));
                 }
-                tooltip.remove(i);
+                // keep the "When Socketed in:" header; step past it and its bullets.
+                i = afterBullets;
                 continue;
             }
             if (ultra) {
@@ -151,7 +148,7 @@ public final class FitsInRemover {
                 }
                 removeRange(tooltip, i, afterBullets);
                 if (sb.length() > 0) {
-                    tooltip.add(i, goldBullet(sb.toString()));
+                    tooltip.add(i, joinedBonusBullet(sb.toString()));
                     i++;
                 }
                 continue;
@@ -305,8 +302,11 @@ public final class FitsInRemover {
         return Component.literal("Fits in:").withStyle(Style.EMPTY.withColor(FITS_IN_COLOR));
     }
 
-    private static Component goldBullet(String text) {
-        return Component.translatable("text.apotheosis.dot_prefix", Component.literal(text))
+    // ultra mode, one bullet with every bonus and the "When Socketed in:" label inline. The label comes
+    // from Apoth's translation key so it stays locale aware, while the joined bonus text is already flat.
+    private static Component joinedBonusBullet(String text) {
+        return Component.translatable("text.apotheosis.dot_prefix",
+                        Component.translatable("text.apotheosis.when_socketed_in").append(" " + text))
                 .withStyle(ChatFormatting.GOLD);
     }
 
@@ -314,6 +314,35 @@ public final class FitsInRemover {
     private static String stripExisting(String text) {
         return text.replace(" levels to existing ", " levels to ")
                 .replace(" level to existing ", " level to ");
+    }
+
+    // Strips "existing" from a gem bonus bullet without flattening it, so the gem class and effect keep
+    // Apoth's colors in compact mode. The word lives in the effect's translation template (arg[1] of the
+    // "%s: %s" join), so only that piece becomes a styled literal while the rest of the tree is reused.
+    private static Component stripExistingBonus(Component bullet) {
+        if (!(bullet.getContents() instanceof TranslatableContents outer)) {
+            return bullet;
+        }
+        Object[] outerArgs = outer.getArgs();
+        if (outerArgs.length == 0 || !(outerArgs[0] instanceof Component inner)) {
+            return bullet;
+        }
+        if (!(inner.getContents() instanceof TranslatableContents join)) {
+            return bullet;
+        }
+        Object[] joinArgs = join.getArgs();
+        if (joinArgs.length < 2 || !(joinArgs[1] instanceof Component effect)) {
+            return bullet;
+        }
+        String text = effect.getString();
+        String stripped = stripExisting(text);
+        if (stripped.equals(text)) {
+            return bullet;
+        }
+        Object[] newArgs = joinArgs.clone();
+        newArgs[1] = Component.literal(stripped).withStyle(effect.getStyle());
+        Component newInner = Component.translatable(join.getKey(), newArgs).withStyle(inner.getStyle());
+        return Component.translatable(outer.getKey(), newInner).withStyle(bullet.getStyle());
     }
 
     // "Melee Weapons: +1 level to Sharpness" becomes "+1 level to Sharpness (Melee Weapons)".
