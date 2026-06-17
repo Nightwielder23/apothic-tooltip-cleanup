@@ -1,6 +1,7 @@
 package com.nightwielder.apothictooltipcleanup.handler;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.logging.LogUtils;
 import com.nightwielder.apothictooltipcleanup.ApothicTooltipCleanup;
 import com.nightwielder.apothictooltipcleanup.Config;
 import net.minecraft.ChatFormatting;
@@ -13,6 +14,7 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.slf4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -24,6 +26,7 @@ import java.util.List;
 // collapses to one text line and mixed keeps the filled gems with a summary below.
 @Mod.EventBusSubscriber(modid = ApothicTooltipCleanup.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SocketCompactor {
+    private static final Logger LOG = LogUtils.getLogger();
     private static final String SOCKET_COMPONENT_FQN = "dev.shadowsoffire.apotheosis.adventure.client.SocketTooltipRenderer$SocketComponent";
 
     private static volatile Method gemsAccessor;
@@ -108,8 +111,9 @@ public final class SocketCompactor {
                 elements.set(i, Either.<FormattedText, TooltipComponent>right((TooltipComponent) newSocketComponent));
                 elements.add(i + 1, Either.<FormattedText, TooltipComponent>left(summary));
                 i++;
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
                 reflectionFailed = true;
+                LOG.warn("Failed to compact sockets on a tooltip, leaving it unchanged.", t);
                 return;
             }
         }

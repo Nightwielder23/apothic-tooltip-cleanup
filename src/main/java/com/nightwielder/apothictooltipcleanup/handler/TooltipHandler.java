@@ -31,6 +31,10 @@ public class TooltipHandler {
 
         List<Component> tooltip = event.getToolTip();
 
+        // strip markers before FitsInRemover, while gem bonus lines are still keyed components and not
+        // yet flattened to literals by compact and ultra modes.
+        boolean markersHidden = AffixMarkerStripper.apply(tooltip);
+
         FitsInRemover.apply(tooltip);
 
         List<? extends String> hiddenIds = Config.HIDDEN_AFFIX_IDS.get();
@@ -49,14 +53,13 @@ public class TooltipHandler {
 
         // each handler returns true if it hid something Alt can reveal. OR them together so
         // AltExpandHandler knows whether to add the prompt.
-        boolean anyHidden = false;
+        boolean anyHidden = markersHidden;
         anyHidden |= PrefixCleaner.apply(stack, tooltip);
         anyHidden |= SourceLineRemover.apply(tooltip);
         anyHidden |= SummarizationDisabler.apply(tooltip);
         if (ApotheosisDetector.isApothicAttributesLoaded()) {
             anyHidden |= PotionDescriptionToggle.apply(stack, tooltip);
         }
-        anyHidden |= AffixMarkerStripper.apply(tooltip);
         anyHidden |= DurabilityHider.apply(tooltip);
 
         AltExpandHandler.apply(tooltip, anyHidden);
