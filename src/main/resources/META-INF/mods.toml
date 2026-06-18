@@ -9,7 +9,7 @@ version="\${file.jarVersion}"
 displayName="Apothic Tooltip Cleanup"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/apothic-tooltip-cleanup"
 authors="Nightwielder23"
-# Client-only: do not cause a red X when the mod is absent on the server.
+# Client only: do not cause a red X when the mod is absent on the server.
 displayTest="IGNORE_SERVER_VERSION"
 description='''${mod_description}'''
 

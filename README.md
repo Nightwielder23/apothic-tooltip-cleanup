@@ -13,21 +13,19 @@ A Forge 1.19.2 mod that cleans up the affix and gem tooltips Apotheosis adds to 
 - Always hide the affix source line (not configurable).
 - Hide the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines without touching the affix text. Hold Alt to reveal.
 - Strip prefixes from affix names.
-- Sort affix lines by rarity, alphabetical, type, or default.
+- Sort affix lines alphabetically, or leave them in Apotheosis's default order.
 - Hide individual affixes by translation key prefix.
 - Hide potion style affix descriptions.
 
-## configuration
+## config
 
-Settings live in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
+Settings are in `config/apothic_tooltip_cleanup-client.toml`, which regenerates from defaults if deleted.
 
 Most hide features use a three mode toggle: `show` keeps the content fully visible, `alt` hides it by default and reveals it while Alt is held, and `delete` hides it permanently with no Alt reveal.
 
-## config reference
-
 ### affix display
 
-`affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix, `top_n` shows the first N with Alt to expand the rest (default), `alt_only` hides every affix unless Alt is held.
+`affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix (default), `top_n` shows the first N with Alt to expand the rest, `alt_only` hides every affix unless Alt is held.
 
 The "Hold Alt for full details" prompt also appears when other handlers hide content. With `durability_bonus_mode` set to `alt` (the default), the prompt shows on durable items even when no affixes were truncated; pressing Alt reveals the durability line.
 
@@ -51,9 +49,11 @@ The affix source line is always hidden. There is no config option for it.
 
 `affix_extras_mode` controls the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines; the affix text itself is never touched, only the bracketed annotations. `show` keeps them, `alt` (default) hides them unless Alt is held, `delete` removes them permanently.
 
+`socketed_line_mode` controls the "Socketed (X)" affix line on items that have sockets. `show` keeps it, `alt` (default) hides it unless Alt is held, `delete` removes it permanently.
+
 ### gem display
 
-`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips the "Fits In" header and the Unique tag and keeps the category bullets. `ultra` puts every category on one line. `hidden` removes all gem info.
+`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) keeps the "Fits In" header and the category bullets, and drops the Unique tag. `ultra` puts every category on one line. `hidden` removes all gem info.
 
 `hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case insensitive. Works in `full`, `compact`, and `ultra` modes; no effect when `gem_tooltip_mode` is `hidden` since that mode strips all gem info anyway. If every category is hidden, the "Fits In:" header is also dropped. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
 

@@ -2,6 +2,18 @@
 
 All notable changes are listed here, newest first.
 
+## v1.3.0 2026-06-17
+
+### Added
+- added the socketed_line_mode setting, which hides the "Socketed (X)" affix line unless Alt is held
+
+### Changed
+- narrowed the affix sort options to alphabetical and default, dropping the rarity and type options that never worked
+- logged a warning when the socket compactor cannot read Apotheosis internals instead of disabling silently
+
+### Fixed
+- fixed cooldown and stacking markers not hiding on nested gem bonuses like bloody arrow, treasure goblin, fortification, and leech block
+
 ## v1.2.2 2026-06-03
 
 ### Changed

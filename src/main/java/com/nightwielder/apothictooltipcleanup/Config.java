@@ -23,6 +23,7 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<String> DURABILITY_BONUS_MODE;
     public static final ForgeConfigSpec.ConfigValue<String> POTION_DESCRIPTIONS_MODE;
     public static final ForgeConfigSpec.ConfigValue<String> AFFIX_EXTRAS_MODE;
+    public static final ForgeConfigSpec.ConfigValue<String> SOCKETED_LINE_MODE;
 
     // Gem display (raw gems)
     public static final ForgeConfigSpec.ConfigValue<String> GEM_TOOLTIP_MODE;
@@ -87,11 +88,17 @@ public class Config {
                 " delete = always hidden, Alt has no effect");
         AFFIX_EXTRAS_MODE = builder.defineInList("affix_extras_mode", HideMode.ALT, HideMode.OPTIONS);
 
+        builder.comment(" The \"Socketed (X)\" line on items that have sockets.",
+                " show = always visible",
+                " alt = hidden unless Alt is held",
+                " delete = always hidden, Alt has no effect");
+        SOCKETED_LINE_MODE = builder.defineInList("socketed_line_mode", HideMode.ALT, HideMode.OPTIONS);
+
         builder.comment(" gem display (raw gems)",
                 " ============================================================",
                 " How raw gem tooltips display.",
                 " full = original Apotheosis layout",
-                " compact = strip headers, keep per bullet categories and bonuses",
+                " compact = keep the category and bonus bullets, drop the Unique tag",
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));

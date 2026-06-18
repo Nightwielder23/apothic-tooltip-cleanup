@@ -62,6 +62,7 @@ public class TooltipHandler {
             anyHidden |= PotionDescriptionToggle.apply(stack, tooltip);
         }
         anyHidden |= DurabilityHider.apply(tooltip);
+        anyHidden |= SocketLineHider.apply(tooltip);
 
         AltExpandHandler.apply(tooltip, anyHidden);
 

@@ -17,7 +17,7 @@ public final class AltExpandHandler {
     // Drops affixes past the visible count outside "all" mode and adds the prompt if anything hid,
     // skipping gem tooltips so the budget does not eat gem categories.
     public static void apply(List<Component> tooltip, boolean anyHidden) {
-        // Alt down means every hide handler no-oped, so everything already shows.
+        // When Alt is held, what the prompt reveals already shows, so skip the prompt and truncation.
         if (Screen.hasAltDown()) {
             return;
         }
