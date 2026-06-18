@@ -63,8 +63,7 @@ public final class FitsInRemover {
         int i = 0;
         while (i < tooltip.size()) {
             String key = TooltipMatcher.getKey(tooltip.get(i));
-            boolean isFits = key != null
-                    && (key.startsWith("text.apotheosis.socketable_into") || key.startsWith("text.apotheosis.fits_in"));
+            boolean isFits = key != null && key.startsWith("text.apotheosis.socketable_into");
             boolean isBonusHeader = key != null && key.startsWith("text.apotheosis.when_socketed_in");
             if (!isFits && !isBonusHeader) {
                 i++;
@@ -124,7 +123,8 @@ public final class FitsInRemover {
                 continue;
             }
 
-            // isBonusHeader from here on.
+            // isBonusHeader from here on, which only compact and ultra reach since hidden and full
+            // already returned, so compact keeps each bonus bullet while ultra joins them onto one line.
             if (compact) {
                 for (int k = i + 1; k < afterBullets; k++) {
                     tooltip.set(k, stripExistingBonus(tooltip.get(k)));
@@ -133,28 +133,24 @@ public final class FitsInRemover {
                 i = afterBullets;
                 continue;
             }
-            if (ultra) {
-                StringBuilder sb = new StringBuilder();
-                for (int k = i + 1; k < afterBullets; k++) {
-                    String inner = extractBulletText(tooltip.get(k));
-                    if (inner == null || inner.isEmpty()) {
-                        continue;
-                    }
-                    String formatted = parenthesize(stripExisting(inner));
-                    if (sb.length() > 0) {
-                        sb.append(", ");
-                    }
-                    sb.append(formatted);
+
+            StringBuilder sb = new StringBuilder();
+            for (int k = i + 1; k < afterBullets; k++) {
+                String inner = extractBulletText(tooltip.get(k));
+                if (inner == null || inner.isEmpty()) {
+                    continue;
                 }
-                removeRange(tooltip, i, afterBullets);
+                String formatted = parenthesize(stripExisting(inner));
                 if (sb.length() > 0) {
-                    tooltip.add(i, joinedBonusBullet(sb.toString()));
-                    i++;
+                    sb.append(", ");
                 }
-                continue;
+                sb.append(formatted);
             }
-            // unknown mode: drop the header to be safe.
-            tooltip.remove(i);
+            removeRange(tooltip, i, afterBullets);
+            if (sb.length() > 0) {
+                tooltip.add(i, joinedBonusBullet(sb.toString()));
+                i++;
+            }
         }
 
         cleanupOrphanBlanks(tooltip);
@@ -170,8 +166,7 @@ public final class FitsInRemover {
         int i = 0;
         while (i < tooltip.size()) {
             String key = TooltipMatcher.getKey(tooltip.get(i));
-            boolean isFits = key != null
-                    && (key.startsWith("text.apotheosis.socketable_into") || key.startsWith("text.apotheosis.fits_in"));
+            boolean isFits = key != null && key.startsWith("text.apotheosis.socketable_into");
             if (!isFits) {
                 i++;
                 continue;
@@ -317,7 +312,7 @@ public final class FitsInRemover {
     }
 
     // Strips "existing" from a gem bonus bullet without flattening it, so the gem class and effect keep
-    // Apoth's colors in compact mode. The word lives in the effect's translation template (arg[1] of the
+    // Apoth's colors in compact mode. The word is in the effect's translation template (arg[1] of the
     // "%s: %s" join), so only that piece becomes a styled literal while the rest of the tree is reused.
     private static Component stripExistingBonus(Component bullet) {
         if (!(bullet.getContents() instanceof TranslatableContents outer)) {

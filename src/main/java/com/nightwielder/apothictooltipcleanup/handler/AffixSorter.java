@@ -31,21 +31,9 @@ public final class AffixSorter {
             return;
         }
 
-        Comparator<Component> comparator = comparatorFor(sortOrder);
-        if (comparator == null) {
-            return;
-        }
-
-        affixLines.sort(comparator);
+        affixLines.sort(Comparator.comparing(c -> c.getString(), String.CASE_INSENSITIVE_ORDER));
         for (int i = 0; i < indices.size(); i++) {
             tooltip.set(indices.get(i), affixLines.get(i));
         }
-    }
-
-    private static Comparator<Component> comparatorFor(String sortOrder) {
-        return switch (sortOrder) {
-            case "alphabetical" -> Comparator.comparing(c -> c.getString(), String.CASE_INSENSITIVE_ORDER);
-            default -> null;
-        };
     }
 }
