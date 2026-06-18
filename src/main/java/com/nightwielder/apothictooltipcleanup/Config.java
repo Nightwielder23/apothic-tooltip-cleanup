@@ -90,7 +90,7 @@ public class Config {
                 " ============================================================",
                 " How raw gem tooltips display.",
                 " full = original Apotheosis layout",
-                " compact = strip headers, keep per bullet categories and bonuses",
+                " compact = keep the category and bonus bullets, drop the Unique tag",
                 " ultra = one line for categories, one line for bonuses",
                 " hidden = remove all gem info");
         GEM_TOOLTIP_MODE = builder.defineInList("gem_tooltip_mode", "compact", Arrays.asList("full", "compact", "ultra", "hidden"));

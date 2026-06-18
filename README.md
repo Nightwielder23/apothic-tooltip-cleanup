@@ -6,28 +6,26 @@ A NeoForge 1.21.1 mod that cleans up the affix and gem tooltips Apotheosis adds 
 
 - Truncate affix lists, hold Alt to expand. Configurable to show all, show top N (default 3), or hide all unless Alt is held.
 - Compact gem tooltips on raw gems. Configurable modes: full, compact, ultra, hidden.
-- Hide individual gem categories from "Fits In" lists, useful on packs that disable certain weapon types.
+- Hide individual gem categories from "Fits In" lists, useful on packs that disable specific weapon types.
 - Merge empty sockets on socketed items into one summary line. Mixed sockets are supported: filled gems still render, with the empty count shown below.
 - Hide the bonus durability line.
 - Hide the Apotheosis affix summary block (Cold/Fire/HP%/Spell Resistance lines).
 - Always hide the affix source line (not configurable).
 - Hide the `[⌛ MM:SS]` cooldown markers and `[Stacking]` tags on affix lines without touching the affix text. Hold Alt to reveal.
 - Strip prefixes from affix names.
-- Sort affix lines by rarity, alphabetical, type, or default.
+- Sort affix lines alphabetically, or leave them in Apotheosis's default order.
 - Hide individual affixes by translation key prefix.
 - Hide potion style affix descriptions.
 
-## configuration
+## config
 
-Settings live in `config/apothic_tooltip_cleanup-client.toml`. The file regenerates from defaults if deleted.
+Settings are in `config/apothic_tooltip_cleanup-client.toml`, which regenerates from defaults if deleted.
 
 Most hide features use a three mode toggle: `show` keeps the content fully visible, `alt` hides it by default and reveals it while Alt is held, and `delete` hides it permanently with no Alt reveal.
 
-## config reference
-
 ### affix display
 
-`affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix, `top_n` shows the first N with Alt to expand the rest (default), `alt_only` hides every affix unless Alt is held.
+`affix_display_mode` controls how affixes show on tooltips. Three options: `all` shows every affix (default), `top_n` shows the first N with Alt to expand the rest, `alt_only` hides every affix unless Alt is held.
 
 The "Hold Alt for full details" prompt also appears when other handlers hide content. With `durability_bonus_mode` set to `alt` (the default), the prompt shows on durable items even when no affixes were truncated; pressing Alt reveals the durability line.
 
@@ -53,7 +51,7 @@ The affix source line is always hidden. There is no config option for it.
 
 ### gem display
 
-`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) strips headers and the Unique tag, keeps the bullets, and removes "level to existing" wording. `ultra` puts categories on one line and bonuses on one line. `hidden` removes all gem info.
+`gem_tooltip_mode` controls raw gem tooltips. `full` keeps Apotheosis's original layout. `compact` (default) keeps the category and bonus bullets under their headers, drops the Unique tag, and removes the "level to existing" wording. `ultra` puts categories on one line and bonuses on one line. `hidden` removes all gem info.
 
 `hidden_gem_categories` is a list of category names to hide from "Fits In" lists. Case insensitive. Works in `full`, `compact`, and `ultra` modes; no effect when `gem_tooltip_mode` is `hidden` since that mode strips all gem info anyway. If every category is hidden, the "Fits In:" header is also dropped. Example: `["Bows", "Crossbows"]` on a pack that disables ranged weapons.
 

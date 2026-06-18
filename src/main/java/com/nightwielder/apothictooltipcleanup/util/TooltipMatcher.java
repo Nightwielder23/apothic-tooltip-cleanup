@@ -50,9 +50,11 @@ public final class TooltipMatcher {
         return key != null && key.startsWith(prefix);
     }
 
-    // Returns true for a bullet line, which Apoth wraps in dot_prefix.
+    // Returns true for a bullet line. Apoth wraps affix and gem bullets in dot_prefix, and newer versions
+    // also use star_prefix for some affix lines, so both count as bullets or those lines slip every check.
     public static boolean isBulletPrefix(Component component) {
-        return keyStartsWith(component, "text.apotheosis.dot_prefix");
+        return keyStartsWith(component, "text.apotheosis.dot_prefix")
+                || keyStartsWith(component, "text.apotheosis.star_prefix");
     }
 
     // Tells affix bullets from gem bonus bullets. Gem bonuses have a ":" before any other punctuation.
@@ -73,12 +75,11 @@ public final class TooltipMatcher {
         return true;
     }
 
-    // Returns true for a raw gem tooltip. full mode keeps the socketable_into/fits_in key and compact
-    // rewrites it to a "Fits in:" literal, so match either to skip gems.
+    // Returns true for a raw gem tooltip. full mode keeps the socketable_into key and compact rewrites
+    // it to a "Fits in:" literal, so match either to skip gems.
     public static boolean isGem(List<Component> tooltip) {
         for (Component line : tooltip) {
             if (keyStartsWith(line, "text.apotheosis.socketable_into")
-                    || keyStartsWith(line, "text.apotheosis.fits_in")
                     || "Fits in:".equals(line.getString())) {
                 return true;
             }
@@ -86,7 +87,7 @@ public final class TooltipMatcher {
         return false;
     }
 
-    // Returns true if the line or any sibling came from Apotheosis or a supported add-on.
+    // Returns true if the line or any sibling came from Apotheosis or a supported addon.
     public static boolean isApotheosisLine(Component component) {
         if (component == null) {
             return false;

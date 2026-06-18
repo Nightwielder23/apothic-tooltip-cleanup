@@ -1,6 +1,5 @@
 package com.nightwielder.apothictooltipcleanup;
 
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -10,7 +9,7 @@ import net.neoforged.fml.config.ModConfig;
 public class ApothicTooltipCleanup {
     public static final String MODID = "apothic_tooltip_cleanup";
 
-    public ApothicTooltipCleanup(IEventBus modEventBus, ModContainer modContainer) {
+    public ApothicTooltipCleanup(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
     }
 }
